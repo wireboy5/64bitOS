@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/local/i386elfgcc/bin/i386-elf-gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "gcc-x86",
+            "compilerArgs": [
+                "-m32",
+                "-ffreestanding",
+                "-Wall",
+                "-Wextra",
+                "-fno-exceptions",
+                "-I ./"
+            ]
+        }
+    ],
+    "version": 4
+}
