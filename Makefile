@@ -6,7 +6,7 @@ CXX_SOURCES = $(wildcard kernel/*.cpp kernel/**/*.cpp kernel/**/**/*.cpp)
 CXX_HEADERS = $(wildcard kernel/*.h kernel/**/*.h kernel/**/**/*.h)
 
 # And we do the same for assembly files
-ASM_SOURCES = $(wildcard kernel/x86/**/*.asm)
+ASM_SOURCES = $(wildcard kernel/asm/*.asm)
 
 # Now lets create another variable containing all of our object files
 OBJECTS = ${CXX_SOURCES:.cpp=.o} # One for c
@@ -18,8 +18,8 @@ CXX_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -I ./
 
 # Here we declare variables containing the command to access
 # Our compiler and linker
-CXX = i386-elf-g++
-LD = i386-elf-ld
+CXX = x86_64-elf-g++
+LD = x86_64-elf-ld
 
 
 
@@ -48,7 +48,7 @@ run: grub
 
 # Now for assembly files
 %.o: %.asm
-	nasm $< -f elf -o $@
+	nasm $< -f elf64 -o $@
 
 # Clean
 clean:

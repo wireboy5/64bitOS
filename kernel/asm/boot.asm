@@ -46,19 +46,26 @@ multiboot:
 
 
 
+
 ; We need to make sure we can access the kernel entry point globaly
 [GLOBAL start]
 
-; Make sure we can access our kernel's kernel_main cpp function
-[EXTERN kernel_main]
+; And lets make sure we can access the bootstrap C
+[EXTERN bootstrap_kernel]
 
 ; Here is the kernel entry point
 start:
     ; Disable interrupts
     cli
 
-    ; Call the kernel_main function
-    call kernel_main
+    ; Say that we are loading
+    mov [0xb8000], byte 'L'
+    mov [0xb8002], byte 'O'
+    mov [0xb8004], byte 'A'
+    mov [0xb8006], byte 'D'
+
+    ; Call bootstrap code
+    call bootstrap_kernel
 
     ; And here we loop infinitely
     jmp $
