@@ -13,8 +13,15 @@ extern "C" int bootstrap_kernel(){
     
     // So, every address that has been included by the linker
     // Is at physical address address - kernOffset
-    // As these are virtual addresses
-    // 
+    // As these are virtual addresses.
+
+    // Virtual addresses _kernel_start to _kernel_end need to be mapped
+    // To (_kernel_start - kernOffset) and (_kernel_end - kernOffset)
+    // And 0x0 to (_kernel_start-1) needs to be mapped to
+    // (_kernel_end - kernOffset) to 0xFFFFFFFF
+
+    
+    
 
     return 0;
 }
