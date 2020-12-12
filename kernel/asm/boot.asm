@@ -55,6 +55,7 @@ multiboot:
 
 ; Here is the kernel entry point
 start:
+    push ebx
     ; Disable interrupts
     cli
 
