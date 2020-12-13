@@ -6,7 +6,7 @@ CXX_SOURCES = $(wildcard kernel/*.cpp kernel/**/*.cpp kernel/**/**/*.cpp)
 CXX_HEADERS = $(wildcard kernel/*.h kernel/**/*.h kernel/**/**/*.h)
 
 # And we do the same for assembly files
-ASM_SOURCES = $(wildcard kernel/asm/*.asm)
+ASM_SOURCES = $(wildcard kernel/**/*.asm)
 
 # Now lets create another variable containing all of our object files
 OBJECTS = ${CXX_SOURCES:.cpp=.o} # One for c

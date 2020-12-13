@@ -8,6 +8,8 @@ extern "C" uint64_t data;
 extern "C" uint64_t bss;
 extern "C" uint64_t _kernel_end;
 
+extern "C" void setupPaging(uint32_t);
+
 extern "C" int bootstrap_kernel(multiboot_info* mboot_info){
     char* vidmem = (char*)0xB8000;
     
@@ -15,62 +17,40 @@ extern "C" int bootstrap_kernel(multiboot_info* mboot_info){
     // Is at physical address address - kernOffset
     // As these are virtual addresses.
 
-    // Virtual addresses _kernel_start to _kernel_end need to be mapped
-    // To (_kernel_start - kernOffset) and (_kernel_end - kernOffset)
-    // And 0x0 to (_kernel_start-1) needs to be mapped to
-    // (_kernel_end - kernOffset) to 0xFFFFFFFF
+    // Where we are going to put the PML4
+    uint64_t pml4Loci = _kernel_end;
+    pml4Loci &= 0xFFFFF000; // Align it to a page
+    pml4Loci += 0x2000;     // Add 2 pages to it
+    uint32_t* pml4Loc = (uint32_t*)pml4Loci;
 
+    // Where we are going to put the PDPT
+    uint32_t* pdptLoc = (uint32_t*)(&pml4Loc + 0x1000);
+
+    // Where we are going to put the PDT
+    uint32_t* pdtLoc = (uint32_t*)(&pdptLoc + 0x1000);
+
+    // And where the page table will be located
+    uint32_t* ptLoc = (uint32_t*)(&pdtLoc + 0x1000);
+
+
+    // We are currently in protected mode, and are thus limited
+    // We are simply going to identity map the lowest 2MB of memory
+
+    // We only want to map the first entry
+    // of PML4, PDPT, and PDT
+    *pml4Loc  = 0x2003;
+    *pdptLoc  = 0x2003;
+    *pdtLoc   = 0x2003;
     
-    
-    // Lets get the memory map from GRUB
-    mmap_entry_t* entry = (mmap_entry_t*)mboot_info->mmap_addr;
-	mmap_entry_t* largest;
-    uint64_t memSize;
-    while(entry < (mmap_entry_t*)(mboot_info->mmap_addr + mboot_info->mmap_length)) {
-        
-		if(entry->type == 1){
-            if(
-                (uint64_t)entry->length_high<<32|entry->length_low
-                >
-                (uint64_t)largest->length_high<<32|largest->length_low
-            ){
-                largest = entry;
-            }
-        }
-        memSize += (uint64_t)largest->length_high<<32|largest->length_low;
-        entry = (mmap_entry_t*) ((uint64_t) entry + entry->size + sizeof(entry->size));
-	}
-
-    // We have the memory end address (memSize)
-    // We also have the kernel end address (_kernel_end)
-    // So now we need to map from address 0x0 to  (0xFFFFFFFF - kernelOffset)
-    // We also need to map from address kernelOffset to 0xFFFFFFFF
-    // Lets define the start and end addresses of each
-
-    uint64_t kernelStartVirtual = kernOffset;
-    uint64_t kernelEndVirtual   = 0xFFFFFFFF;
-
-    uint64_t freeStartVirtual   = 0;
-    uint64_t freeEndVirtual     = kernOffset - 1;
-
-
-    // Lets map from 0 to the size of kernel offset to end
-    uint64_t kernelStartPhysical= 0x0;
-    uint64_t kernelEndPhysical  = kernelEndVirtual - kernelStartVirtual;
-
-    uint64_t freeStartPhysical  = kernelEndPhysical+1;
-    uint64_t freeEndPhysical    = memSize;
-
-    // Test bitmap real quick
-    bitmap test(8);
-
-    test.set(8);
-
-    bool isOk = test.check(8);
-    
-    if(isOk){
-        vidmem[0] = 'K';
+    int i = 0;
+    uint64_t addr = 0x00000003;
+    while(i < 512){
+        ptLoc[i] = addr;
+        addr += 0x1000;
+        i++;
     }
+
+    setupPaging(pml4Loci);
 
     return 0;
 }
