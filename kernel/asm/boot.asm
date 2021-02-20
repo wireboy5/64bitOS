@@ -50,8 +50,9 @@ multiboot:
 ; We need to make sure we can access the kernel entry point globaly
 [GLOBAL start]
 
-; And lets make sure we can access the bootstrap C
+; And lets make sure we can access the bootstrap funcntion
 [EXTERN bootstrap_kernel]
+
 
 ; Here is the kernel entry point
 start:
@@ -65,8 +66,10 @@ start:
     mov [0xb8004], byte 'A'
     mov [0xb8006], byte 'D'
 
-    ; Call bootstrap code
-    call bootstrap_kernel
-
-    ; And here we loop infinitely
+    jmp bootstrap_kernel
+    
+    
+[GLOBAL bootstrap_complete]
+bootstrap_complete:
+    mov [0xb8000], byte 'X'
     jmp $
