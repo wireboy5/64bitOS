@@ -5,12 +5,12 @@
 ENTRY(start)
 SECTIONS
 {
-  . = 0x00001000;
+  	. = 0x00001000;
 
 	. += 0xC0000000;
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
-  kernOffset = 0xC0000000;
+  	kernOffset = 0xC0000000;
 	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
 	{
 		*(.text)
