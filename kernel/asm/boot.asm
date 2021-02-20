@@ -66,10 +66,10 @@ start:
     mov [0xb8004], byte 'A'
     mov [0xb8006], byte 'D'
 
-    jmp bootstrap_kernel
-    
-    
-[GLOBAL bootstrap_complete]
+    call bootstrap_kernel
+    jmp bootstrap_complete
+
 bootstrap_complete:
     mov [0xb8000], byte 'X'
     jmp $
+    
