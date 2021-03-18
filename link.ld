@@ -12,26 +12,26 @@ SECTIONS
         *(.multiboot_header)
     }
 	
-	. += 0xC0000000;
+	/*. += 0xC0000000;*/
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
-  	kernOffset = 0xC0000000;
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+  	/*kernOffset = 0xC0000000;*/
+	.text ALIGN (4K) :
 	{
 		*(.text)
     code = .; _code = .; __code = .;
 	}
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+	.rodata ALIGN (4K) :
 	{
 		*(.rodata)
     rodata = .; _rodata = .; __rodata = .;
 	}
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+	.data ALIGN (4K) :
 	{
 		*(.data)
     data = .; _bss = .; __bss = .;
 	}
-	.bss :
+	.bss  ALIGN (4K):
 	{
 		*(COMMON)
 		*(.bss)
