@@ -6,7 +6,12 @@ ENTRY(start)
 SECTIONS
 {
   	. = 0x00001000;
-
+	.boot :
+    {
+        /* ensure that the multiboot header is at the beginning */
+        *(.multiboot_header)
+    }
+	
 	. += 0xC0000000;
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
@@ -26,11 +31,10 @@ SECTIONS
 		*(.data)
     data = .; _bss = .; __bss = .;
 	}
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+	.bss :
 	{
 		*(COMMON)
 		*(.bss)
-		*(.bootstrap_stack)
     bss = .; _bss = .; __bss = .;
 	}
 	/* Add a symbol that indicates the end address of the kernel. */
