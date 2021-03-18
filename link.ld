@@ -16,22 +16,22 @@ SECTIONS
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
   	kernOffset = 0xC0000000;
-	.text ALIGN (4K) :
+	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
 	{
 		*(.text)
     code = .; _code = .; __code = .;
 	}
-	.rodata ALIGN (4K) :
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
 	{
 		*(.rodata)
     rodata = .; _rodata = .; __rodata = .;
 	}
-	.data ALIGN (4K) :
+	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
 	{
 		*(.data)
     data = .; _bss = .; __bss = .;
 	}
-	.bss  ALIGN (4K):
+	.bss  ALIGN (4K): AT (ADDR (.bss) - 0xC0000000)
 	{
 		*(COMMON)
 		*(.bss)
