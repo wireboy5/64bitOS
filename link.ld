@@ -12,10 +12,10 @@ SECTIONS
         *(.multiboot_header)
     }
 	
-	/*. += 0xC0000000;*/
+	. += 0xC0000000;
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
-  	/*kernOffset = 0xC0000000;*/
+  	kernOffset = 0xC0000000;
 	.text ALIGN (4K) :
 	{
 		*(.text)
