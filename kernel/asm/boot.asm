@@ -2,8 +2,8 @@ global _start
 extern entry
 extern kernOffset
 section .text
-;%define offset 0xC0000000
-%define offset 0
+%define offset 0xC0000000
+;%define offset 0
 bits 32
 _start:
     ; Setup stack, Without the kernel offset

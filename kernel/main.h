@@ -1,2 +1,3 @@
 #pragma once
-#include <kernel/lib/drivers/screen.h>
+#include <kernel/lib/paging.h>
+#include <stddef.h>
