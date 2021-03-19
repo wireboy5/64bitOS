@@ -1,10 +1,10 @@
 #include <kernel/main.h>
 
+// Kernel offset, start, and end
+extern "C" size_t kernelOffset;
+extern "C" size_t _kernel_start;
 
 extern "C" int kmain () {
-    screen::kprint("A\n");
-    for(int i = 0; i < 25; i++){
-        screen::kprint("B\n");
-    }
+    // Lets go paging!
     return 0;
 }

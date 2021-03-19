@@ -5,7 +5,7 @@
 ENTRY(start)
 SECTIONS
 {
-  	. = 0x00001000;
+  	. = 0x00100000;
 	.boot :
     {
         /* ensure that the multiboot header is at the beginning */
