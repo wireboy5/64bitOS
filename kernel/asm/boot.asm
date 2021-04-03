@@ -29,12 +29,14 @@ init_paging:
     or eax, 0b11
     mov [pml4 - offset], eax
 
-    ; Map the first PDPT entry
-    mov eax, pd - offset
+    
+
+    ; Map the higher half entry in PDPT
+    mov eax, pd2 - offset
     or eax, 0b11
-    ; We want both higher and lower half
-    mov [pdpt - offset], eax
     mov [pdpt - offset + 3 * 8], eax
+
+    ; Initialize counter at 0
     mov ecx, 0
 .map_table
     ; We want eax to contain the size of the page
@@ -45,17 +47,31 @@ init_paging:
     ; present, writable, and huge bits.
     or eax, 0b10000011
 
-    ; And move it into the page directory
-    mov [pd - offset + ecx * 8], eax
+    ; And move it into the higher half entry
+    mov [pd2 - offset + ecx * 8], eax
 
     ; Increment the counter
     inc ecx
 
     ; And if it is 512, we have mapped the entire table
     cmp ecx, 512
-    jne .map_table ; If not, map the next
+    jle .map_table ; If not, map the next
 
     
+    ; Identity map first 2MB
+
+    mov ecx, 0 ; Set counter bit
+
+    ; Map the first PDPT entry
+    mov eax, pd - offset
+    or eax, 0b11
+    mov [pdpt - offset], eax
+    
+    ; And map the first entry in the page directory
+    mov eax, 0x0 ; We want the first page
+    or eax, 0b10000011 ; We want huge (2MB) pages, we mark it as present, and as writable
+    mov [pd - offset], eax ; And move it into the table.
+
     ; Load PML4
     mov eax, pml4 - offset
     mov cr3, eax
@@ -76,6 +92,7 @@ init_paging:
     or eax, 1 << 31
     mov cr0, eax
     
+
     ; Load GDT
     lgdt [gdt64_pointer - offset]
 
@@ -176,6 +193,8 @@ pml4:
 pdpt:
     resb 4096
 pd:
+    resb 4096
+pd2:
     resb 4096
 
 align 4096
