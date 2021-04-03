@@ -56,28 +56,26 @@ init_paging:
     jne .map_table ; If not, map the next
 
     
-    ; load P4 to cr3 register (cpu uses this to access the P4 table)
+    ; Load PML4
     mov eax, pml4 - offset
     mov cr3, eax
 
-    ; enable PAE-flag in cr4 (Physical Address Extension)
+    ; Enable PAE
     mov eax, cr4
     or eax, 1 << 5
     mov cr4, eax
 
-    ; set the long mode bit in the EFER MSR (model specific register)
+    ; Enable long mode
     mov ecx, 0xC0000080
     rdmsr
     or eax, 1 << 8
     wrmsr
 
-    ; enable paging in the cr0 register
+    ; Enable paging
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
     
-
-
     ; Load GDT
     lgdt [gdt64_pointer - offset]
 
