@@ -18,27 +18,24 @@ _start:
     call check_long_mode
 
     ; Initialize paging
-    call init_paging
-    jmp $
-    ; Load GDT
-    lgdt [gdt64.pointer-offset]
-
-    ; Long jump
-    jmp gdt64.code:entry-offset
+    jmp init_paging
+    
 
 
 ; Setup Page tables
 init_paging:
     ; Map first PML4 Entry
-    mov eax, pdpt
+    mov eax, pdpt - offset
     or eax, 0b11
     mov [pml4 - offset], eax
 
     ; Map the first PDPT entry
-    mov eax, pd
+    mov eax, pd - offset
     or eax, 0b11
+    ; We want both higher and lower half
     mov [pdpt - offset], eax
-
+    mov [pdpt - offset + 3 * 8], eax
+    mov ecx, 0
 .map_table
     ; We want eax to contain the size of the page
     ; (2MB) * the index in the page table.
@@ -49,19 +46,43 @@ init_paging:
     or eax, 0b10000011
 
     ; And move it into the page directory
-    mov [pd - offset + ecx * 8 + 3 * 8], eax
+    mov [pd - offset + ecx * 8], eax
 
     ; Increment the counter
     inc ecx
 
     ; And if it is 512, we have mapped the entire table
     cmp ecx, 512
-    jne .map_table
+    jne .map_table ; If not, map the next
 
-    ; At this point, we have mapped all tables.
+    
+    ; load P4 to cr3 register (cpu uses this to access the P4 table)
+    mov eax, pml4 - offset
+    mov cr3, eax
+
+    ; enable PAE-flag in cr4 (Physical Address Extension)
+    mov eax, cr4
+    or eax, 1 << 5
+    mov cr4, eax
+
+    ; set the long mode bit in the EFER MSR (model specific register)
+    mov ecx, 0xC0000080
+    rdmsr
+    or eax, 1 << 8
+    wrmsr
+
+    ; enable paging in the cr0 register
+    mov eax, cr0
+    or eax, 1 << 31
+    mov cr0, eax
+    
 
 
-    ret
+    ; Load GDT
+    lgdt [gdt64_pointer - offset]
+
+    ; Long jump
+    jmp 0x08:entry - offset
 
 
 ; Here we have some checks
@@ -165,9 +186,30 @@ stack_begin:
 stack_end:
 section .rodata
 gdt64:
-    dq 0 ; null entry
-.code: equ $ - (gdt64 - offset)
-    dq (1<<43) | (1<<44) | (1<<47) | (1<<53)
-.pointer:
-    dw $ - gdt64 - 1 - offset
-    dq gdt64 - offset
+
+gdt64_null:
+    dd 0x00000000
+    dd 0x00000000
+
+gdt64_code:
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0b10011010
+    db 0b10101111
+    db 0x00
+
+gdt64_data:
+    dw 0x0000
+    dw 0x0000
+    db 0x00
+    db 0b10010010
+    db 0b10100000
+    db 0x00
+
+gdt64_end:
+
+
+gdt64_pointer:
+    dw (gdt64_end - offset) - (gdt64 - offset) - 1
+    dw gdt64 - offset

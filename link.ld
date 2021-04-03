@@ -5,7 +5,7 @@
 ENTRY(start)
 SECTIONS
 {
-  	. = 1M;
+  	. = 0x1000;
 	.boot : AT (.)
     {
         /* ensure that the multiboot header is at the beginning */
