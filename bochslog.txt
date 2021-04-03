@@ -34,45 +34,45 @@
 00000000000i[      ]   Sound support: SB16 ES1370
 00000000000i[      ]   USB support: UHCI OHCI EHCI xHCI
 00000000000i[      ]   VGA extension support: vbe cirrus voodoo
-00000000000i[MEM0  ] allocated memory at 0x7fa5bfddd010. after alignment, vector=0x7fa5bfdde000
+00000000000i[MEM0  ] allocated memory at 0x7f5e2fddd010. after alignment, vector=0x7f5e2fdde000
 00000000000i[MEM0  ] 128.00MB
 00000000000i[MEM0  ] mem block size = 0x00020000, blocks=1024
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('/usr/share/bochs/BIOS-bochs-latest')
-00000000000i[      ] lt_dlhandle is 0x557cb0b6ecc0
+00000000000i[      ] lt_dlhandle is 0x55a80a33adf0
 00000000000i[PLUGIN] loaded plugin libbx_hdimage.so
-00000000000i[      ] lt_dlhandle is 0x557cb0bd7e70
+00000000000i[      ] lt_dlhandle is 0x55a80a2d1c90
 00000000000i[PLUGIN] loaded plugin libbx_soundalsa.so
 00000000000i[WAVOUT] ALSA: opened default PCM output device
 00000000000i[WAVOUT] changed sample rate to 44101
-00000000000i[      ] lt_dlhandle is 0x557cb133acf0
+00000000000i[      ] lt_dlhandle is 0x55a80aa9d790
 00000000000i[PLUGIN] loaded plugin libbx_pci.so
-00000000000i[      ] lt_dlhandle is 0x557cb0a56d80
+00000000000i[      ] lt_dlhandle is 0x55a80a1b9d30
 00000000000i[PLUGIN] loaded plugin libbx_pci2isa.so
-00000000000i[      ] lt_dlhandle is 0x557cb0a2a150
+00000000000i[      ] lt_dlhandle is 0x55a80a18dac0
 00000000000i[PLUGIN] loaded plugin libbx_usb_uhci.so
-00000000000i[      ] lt_dlhandle is 0x557cb0b62b80
+00000000000i[      ] lt_dlhandle is 0x55a80a1b8620
 00000000000i[PLUGIN] loaded plugin libbx_acpi.so
-00000000000i[      ] lt_dlhandle is 0x557cb0a55690
+00000000000i[      ] lt_dlhandle is 0x55a80a18d810
 00000000000i[PLUGIN] loaded plugin libbx_hpet.so
-00000000000i[      ] lt_dlhandle is 0x557cb0a29b90
+00000000000i[      ] lt_dlhandle is 0x55a80a18cd10
 00000000000i[PLUGIN] loaded plugin libbx_cmos.so
-00000000000i[      ] lt_dlhandle is 0x557cb1347490
+00000000000i[      ] lt_dlhandle is 0x55a80aaa9f30
 00000000000i[PLUGIN] loaded plugin libbx_dma.so
-00000000000i[      ] lt_dlhandle is 0x557cb1347c90
+00000000000i[      ] lt_dlhandle is 0x55a80aaaa730
 00000000000i[PLUGIN] loaded plugin libbx_pic.so
-00000000000i[      ] lt_dlhandle is 0x557cb1348450
+00000000000i[      ] lt_dlhandle is 0x55a80aaaaef0
 00000000000i[PLUGIN] loaded plugin libbx_pit.so
-00000000000i[      ] lt_dlhandle is 0x557cb1348c90
+00000000000i[      ] lt_dlhandle is 0x55a80aaab730
 00000000000i[PLUGIN] loaded plugin libbx_vga.so
-00000000000i[      ] lt_dlhandle is 0x557cb136a240
+00000000000i[      ] lt_dlhandle is 0x55a80aaccce0
 00000000000i[PLUGIN] loaded plugin libbx_floppy.so
-00000000000i[      ] lt_dlhandle is 0x557cb136adf0
+00000000000i[      ] lt_dlhandle is 0x55a80aacd890
 00000000000i[PLUGIN] loaded plugin libbx_ioapic.so
-00000000000i[      ] lt_dlhandle is 0x557cb136b5f0
+00000000000i[      ] lt_dlhandle is 0x55a80aace090
 00000000000i[PLUGIN] loaded plugin libbx_keyboard.so
-00000000000i[      ] lt_dlhandle is 0x557cb136bdc0
+00000000000i[      ] lt_dlhandle is 0x55a80aace860
 00000000000i[PLUGIN] loaded plugin libbx_harddrv.so
-00000000000i[      ] lt_dlhandle is 0x557cb136e020
+00000000000i[      ] lt_dlhandle is 0x55a80aad0ac0
 00000000000i[PLUGIN] loaded plugin libbx_pci_ide.so
 00000000000i[PLUGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[DEV   ] i440FX PMC present at device 0, function 0
@@ -80,7 +80,7 @@
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Sat Apr  3 17:49:09 2021 (time0=1617486549)
+00000000000i[CMOS  ] Setting initial clock to: Sat Apr  3 18:58:20 2021 (time0=1617490700)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
@@ -268,34 +268,34 @@
 00001914616i[BXVGA ] VBE known Display Interface b0c5
 00001917259i[VBIOS ] VBE Bios $Id: vbe.c 228 2020-01-02 23:09:02Z vruppert $
 00005704062i[BIOS  ] IDE time out
-00370239040i[BIOS  ] Booting from 07c0:0000
-00379369196e[WAVOUT] ALSA: underrun occurred
-00462029494i[CPU0  ] WARNING: HLT instruction with IF=0!
-00979662000p[SDL2  ] >>PANIC<< User requested shutdown.
-00979662000i[CPU0  ] CPU is in long mode (halted)
-00979662000i[CPU0  ] CS.mode = 64 bit
-00979662000i[CPU0  ] SS.mode = 64 bit
-00979662000i[CPU0  ] EFER   = 0x00000500
-00979662000i[CPU0  ] | RAX=0000000000000000  RBX=0000000000000000
-00979662000i[CPU0  ] | RCX=00000000c0000080  RDX=0000000000000000
-00979662000i[CPU0  ] | RSP=0000000000008000  RBP=0000000000000000
-00979662000i[CPU0  ] | RSI=0000000000000000  RDI=0000000000000000
-00979662000i[CPU0  ] |  R8=0000000000000000   R9=0000000000000000
-00979662000i[CPU0  ] | R10=0000000000000000  R11=0000000000000000
-00979662000i[CPU0  ] | R12=0000000000000000  R13=0000000000000000
-00979662000i[CPU0  ] | R14=0000000000000000  R15=0000000000000000
-00979662000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af PF cf
-00979662000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
-00979662000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 0
-00979662000i[CPU0  ] |  DS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-00979662000i[CPU0  ] |  SS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-00979662000i[CPU0  ] |  ES:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-00979662000i[CPU0  ] |  FS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-00979662000i[CPU0  ] |  GS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-00979662000i[CPU0  ] |  MSR_FS_BASE:0000000000000000
-00979662000i[CPU0  ] |  MSR_GS_BASE:0000000000000000
-00979662000i[CPU0  ] | RIP=000000000000211e (000000000000211e)
-00979662000i[CPU0  ] | CR0=0xe0000011 CR2=0x0000000000000000
-00979662000i[CPU0  ] | CR3=0x0000000000004000 CR4=0x00000020
-00979662000i[CMOS  ] Last time is 1617487528 (Sat Apr  3 18:05:28 2021)
-00979662000i[SIM   ] quit_sim called with exit code 1
+00259555840i[BIOS  ] Booting from 07c0:0000
+00268457814e[WAVOUT] ALSA: underrun occurred
+00356013272i[CPU0  ] WARNING: HLT instruction with IF=0!
+00806398000p[SDL2  ] >>PANIC<< User requested shutdown.
+00806398000i[CPU0  ] CPU is in long mode (halted)
+00806398000i[CPU0  ] CS.mode = 64 bit
+00806398000i[CPU0  ] SS.mode = 64 bit
+00806398000i[CPU0  ] EFER   = 0x00000500
+00806398000i[CPU0  ] | RAX=0000000000000000  RBX=0000000000000000
+00806398000i[CPU0  ] | RCX=00000000c0000080  RDX=0000000000000000
+00806398000i[CPU0  ] | RSP=0000000000008000  RBP=0000000000000000
+00806398000i[CPU0  ] | RSI=0000000000000000  RDI=0000000000000000
+00806398000i[CPU0  ] |  R8=0000000000000000   R9=0000000000000000
+00806398000i[CPU0  ] | R10=0000000000000000  R11=0000000000000000
+00806398000i[CPU0  ] | R12=0000000000000000  R13=0000000000000000
+00806398000i[CPU0  ] | R14=0000000000000000  R15=0000000000000000
+00806398000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af PF cf
+00806398000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
+00806398000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 0
+00806398000i[CPU0  ] |  DS:0000( 0000| 0|  0) 00000000 00000000 0 0
+00806398000i[CPU0  ] |  SS:0000( 0000| 0|  0) 00000000 00000000 0 0
+00806398000i[CPU0  ] |  ES:0000( 0000| 0|  0) 00000000 00000000 0 0
+00806398000i[CPU0  ] |  FS:0000( 0000| 0|  0) 00000000 00000000 0 0
+00806398000i[CPU0  ] |  GS:0000( 0000| 0|  0) 00000000 00000000 0 0
+00806398000i[CPU0  ] |  MSR_FS_BASE:0000000000000000
+00806398000i[CPU0  ] |  MSR_GS_BASE:0000000000000000
+00806398000i[CPU0  ] | RIP=0000000000002124 (0000000000002124)
+00806398000i[CPU0  ] | CR0=0xe0000011 CR2=0x0000000000000000
+00806398000i[CPU0  ] | CR3=0x0000000000004000 CR4=0x00000020
+00806398000i[CMOS  ] Last time is 1617491506 (Sat Apr  3 19:11:46 2021)
+00806398000i[SIM   ] quit_sim called with exit code 1
