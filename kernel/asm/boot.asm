@@ -229,4 +229,4 @@ gdt64_end:
 
 gdt64_pointer:
     dw (gdt64_end - offset) - (gdt64_start - offset) - 1
-    dw gdt64_start - offset
+    dd gdt64_start - offset
