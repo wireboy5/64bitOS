@@ -2,10 +2,10 @@
 /*            tutorials: http://www.osdever.net/bkerndev/index.php. */
 
 
-ENTRY(start)
+ENTRY(_start)
 SECTIONS
 {
-  	. = 0x1000;
+  	. = 1M;
 	.boot : AT (.)
     {
         /* ensure that the multiboot header is at the beginning */
@@ -16,27 +16,36 @@ SECTIONS
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
   	kernOffset = 0xC0000000;
+	
+	
+
 	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
 	{
 		*(.text)
-    code = .; _code = .; __code = .;
+    	code = .; _code = .; __code = .;
 	}
+	
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
 	{
 		*(.rodata)
-    rodata = .; _rodata = .; __rodata = .;
+    	rodata = .; _rodata = .; __rodata = .;
 	}
+	
 	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
 	{
 		*(.data)
-    data = .; _bss = .; __bss = .;
+    	data = .; _bss = .; __bss = .;
 	}
+
+	
+	
 	.bss  ALIGN (4K): AT (ADDR (.bss) - 0xC0000000)
 	{
 		*(COMMON)
 		*(.bss)
-    bss = .; _bss = .; __bss = .;
+    	bss = .; _bss = .; __bss = .;
 	}
+
 	/* Add a symbol that indicates the end address of the kernel. */
 	_kernel_end = .;
 
