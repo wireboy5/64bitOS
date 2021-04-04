@@ -39,40 +39,15 @@ init_paging:
     or eax, 0b11
     mov [pdpt - offset + 3 * 8], eax
 
-    ; Initialize counter at 0
-    mov ecx, 0
     
-.map_table
-    ; We want eax to contain the size of the page
-    ; (2MB) * the index in the page table.
-    mov eax, 0x200000
-    mul ecx
-    ; Now we will set the
-    ; present, writable, and huge bits.
-    or eax, 0b10000011
-
-    ; And move it into the higher half entry
-    mov [pd2 - offset + ecx * 8], eax
-
-    ; Increment the counter
-    inc ecx
-
-    ; And if it is 512, we have mapped the entire table
-    cmp ecx, 512
-    jle .map_table ; If not, map the next
     
-    ; Identity map first 2MB
 
-    ; Map the first PDPT entry
-    ;mov eax, pd - offset
-    ;or eax, 0b11
-    ;mov [pdpt - offset], eax
+    ; Call pdmap
+    push pd2 ; Map pd2
+    push 0b00000011 ; and use flags read, and present
+    call pdmap ; Call
+
     
-    ; And map the first entry in the page directory
-    ;mov eax, 0x0 ; We want the first page
-    ;or eax, 0b10000011 ; We want huge (2MB) pages, we mark it as present, and as writable
-    ;mov [pd - offset], eax ; And move it into the table.
-
     ; Load PML4
     mov eax, pml4 - offset
     mov cr3, eax
@@ -88,17 +63,70 @@ init_paging:
     or eax, 1 << 8
     wrmsr
     
+    
     ; Enable paging
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
-    
+    jmp $
     
     ; Load GDT
     lgdt [gdt64_pointer - offset]
 
     ; Long jump
     jmp 0x08:entry - offset
+
+pdmap:
+    ; This function maps a page directory, using provided flags
+
+    ; ESP + 4 is flags, ESP + 8 is directory
+    
+    ; Check if huge page bit is set, if not, assume 4K pages, if it is, 2M
+
+    ; Check if bit 7 of flags is set
+    mov eax, [esp + 4]
+    and eax, 1 << (7)
+    cmp eax, 0
+
+   
+    ; If it is, then 2M pages are used
+    jne .is_huge
+
+    mov eax, 0x1000 ; Default to 4K
+    jmp .donecheck ; Do not take 2M
+
+    
+.is_huge
+    ; Label for using 2M pages
+    mov eax, 0x200000 ; 2M in eax
+    
+.donecheck
+
+    ; Initialize counter at zero
+    mov ecx, 0
+
+.map1
+
+    mov edx, eax ; We want size in edx
+    mul ecx ; Multiply size by count
+
+    or edx, [esp + 4] ; Set flags on size
+
+    ; Move into entry
+    mov ebx, [esp + 8]
+    mov [ebx - offset + ecx * 8], edx ; Move into table
+
+    ; Increment counter
+    inc ecx
+
+    ; If counter is less than or equal to 512 then loop
+    cmp ecx, 512
+    ; The actual jump
+    jle .map1
+
+    
+    
+    ret ; Return when we are done
 
 
 ; Here we have some checks
