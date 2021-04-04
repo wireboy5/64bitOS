@@ -5,11 +5,11 @@
 ENTRY(_start)
 SECTIONS
 {
-  	. = 1M;
+  	. = 0x100000;
 	.boot : AT (.)
     {
         /* ensure that the multiboot header is at the beginning */
-        KEEP(*(.multiboot_header))
+        *(.multiboot_header)
     }
 	
 	. += 0xC0000000;

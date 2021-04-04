@@ -29,8 +29,8 @@ grub: kernel.elf
 	grub-mkrescue -o image.iso image/
 
 # A target to build the kernel.elf file
-kernel.elf: kernel/asm/boot.o ${ASMOBJECTS} ${OBJECTS} 
-	${LD} -o $@ -Tlink.ld $^
+kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS} 
+	${LD} -z max-page-size=0x1000 -o $@ -Tlink.ld $^
 
 # Runs the kernel
 run: grub

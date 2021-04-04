@@ -19,7 +19,7 @@ _start:
     call check_multiboot
     call check_cpuid
     call check_long_mode
-
+    
     ; Initialize paging
     jmp init_paging
     
@@ -41,6 +41,7 @@ init_paging:
 
     ; Initialize counter at 0
     mov ecx, 0
+    
 .map_table
     ; We want eax to contain the size of the page
     ; (2MB) * the index in the page table.
@@ -59,7 +60,7 @@ init_paging:
     ; And if it is 512, we have mapped the entire table
     cmp ecx, 512
     jle .map_table ; If not, map the next
-
+    
     ; Identity map first 2MB
 
     ; Map the first PDPT entry
@@ -80,19 +81,19 @@ init_paging:
     mov eax, cr4
     or eax, 1 << 5
     mov cr4, eax
-
+    
     ; Enable long mode
     mov ecx, 0xC0000080
     rdmsr
     or eax, 1 << 8
     wrmsr
-
+    
     ; Enable paging
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
     
-
+    
     ; Load GDT
     lgdt [gdt64_pointer - offset]
 
@@ -161,8 +162,10 @@ check_long_mode:
 
     ; use extended info to test if long mode is available
     mov eax, 0x80000001    ; argument for extended processor info
+    push edx
     cpuid                  ; returns various feature bits in ecx and edx
     test edx, 1 << 29      ; test if the LM-bit is set in the D-register
+    pop edx
     jz .no_long_mode       ; If it's not set, there is no long mode
     ret
 .no_long_mode:
