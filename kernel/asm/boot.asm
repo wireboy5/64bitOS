@@ -1,9 +1,12 @@
 global _start
 extern entry
 extern kernOffset
-section .text
+
 %define offset 0xC0000000
 ;%define offset 0
+
+section .text
+
 bits 32
 _start:
     ; Setup stack, Without the kernel offset
@@ -57,20 +60,17 @@ init_paging:
     cmp ecx, 512
     jle .map_table ; If not, map the next
 
-    
     ; Identity map first 2MB
 
-    mov ecx, 0 ; Set counter bit
-
     ; Map the first PDPT entry
-    mov eax, pd - offset
-    or eax, 0b11
-    mov [pdpt - offset], eax
+    ;mov eax, pd - offset
+    ;or eax, 0b11
+    ;mov [pdpt - offset], eax
     
     ; And map the first entry in the page directory
-    mov eax, 0x0 ; We want the first page
-    or eax, 0b10000011 ; We want huge (2MB) pages, we mark it as present, and as writable
-    mov [pd - offset], eax ; And move it into the table.
+    ;mov eax, 0x0 ; We want the first page
+    ;or eax, 0b10000011 ; We want huge (2MB) pages, we mark it as present, and as writable
+    ;mov [pd - offset], eax ; And move it into the table.
 
     ; Load PML4
     mov eax, pml4 - offset
@@ -201,9 +201,10 @@ align 4096
 stack_begin:
     resb 4096
 stack_end:
-section .rodata
-gdt64:
 
+section .rodata
+
+gdt64_start:
 gdt64_null:
     dd 0x00000000
     dd 0x00000000
@@ -226,7 +227,6 @@ gdt64_data:
 
 gdt64_end:
 
-
 gdt64_pointer:
-    dw (gdt64_end - offset) - (gdt64 - offset) - 1
-    dw gdt64 - offset
+    dw (gdt64_end - offset) - (gdt64_start - offset) - 1
+    dw gdt64_start - offset
