@@ -40,6 +40,8 @@ init_paging:
     mov [pdpt - offset + 3 * 8], eax
 
     
+
+    
     
 
     ; Call pdmap
@@ -47,7 +49,6 @@ init_paging:
     push 0b00000011 ; and use flags read, and present
     call pdmap ; Call
 
-    
     ; Load PML4
     mov eax, pml4 - offset
     mov cr3, eax
@@ -113,8 +114,10 @@ pdmap:
     or edx, [esp + 4] ; Set flags on size
 
     ; Move into entry
+    mov [esp - 4], ebx
     mov ebx, [esp + 8]
     mov [ebx - offset + ecx * 8], edx ; Move into table
+    mov ebx, [esp-4]
 
     ; Increment counter
     inc ecx
@@ -221,9 +224,7 @@ error:
 section .bss
 pml4:
     resb 4096
-pdpt:
-    resb 4096
-pd:
+pdpt
     resb 4096
 pd2:
     resb 4096
