@@ -6,7 +6,7 @@ ENTRY(_start)
 SECTIONS
 {
   	. = 1M;
-	.multiboot_header ALIGN (4K) : AT(.)
+	.multiboot_header ALIGN (4K) : AT(ADDR(.multiboot_header))
     {
         /* ensure that the multiboot header is at the beginning */
         *(.multiboot_header)
