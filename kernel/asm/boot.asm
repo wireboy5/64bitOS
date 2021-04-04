@@ -86,7 +86,7 @@ pdmap:
 
     ; ESP is flags, ESP + 4 is directory
     
-    ; Check if huge page bit is set, if not, assume 4K pages, if it is, 2M
+    ; Check if huge page bit is set, if not, assume 4K pages, if it is, 2M pages
 
     ; Check if bit 7 of flags is set
     mov eax, [esp]
@@ -101,8 +101,8 @@ pdmap:
     jmp .donecheck ; Do not take 2M
 
     
-.is_huge
-    ; Label for using 2M pages
+.is_huge ; Label for using 2M pages
+
     mov eax, 0x200000 ; 2M in eax
     
 .donecheck
