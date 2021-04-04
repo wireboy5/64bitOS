@@ -6,14 +6,11 @@ CXX_SOURCES = $(wildcard kernel/*.cpp kernel/**/*.cpp kernel/**/**/*.cpp)
 CXX_HEADERS = $(wildcard kernel/*.h kernel/**/*.h kernel/**/**/*.h)
 
 # And we do the same for assembly files
-ASM_SOURCES = $(wildcard kernel/lib/**/*.asm)
+ASM_SOURCES = $(wildcard kernel/**/*.asm kernel/**/**/*.asm)
 
 # Now lets create another variable containing all of our object files
 OBJECTS = ${CXX_SOURCES:.cpp=.o} # One for c
 ASMOBJECTS = ${ASM_SOURCES:.asm=.o} # One for ASM
-ASMOBJECTS += kernel/asm/mboot.o
-ASMOBJECTS += kernel/asm/boot.o
-ASMOBJECTS += kernel/asm/entry.o
 
 # Now lets create a variable for all of the flags to be passed to out
 # c compiler
@@ -33,7 +30,7 @@ grub: kernel.elf
 
 # A target to build the kernel.elf file
 kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS} 
-	${LD} -o $@ -Tlink.ld $^
+	${LD} -z max-page-size=0x1000 -o $@ -Tlink.ld $^
 
 # Runs the kernel
 run: grub
