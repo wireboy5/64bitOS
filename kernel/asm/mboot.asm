@@ -1,13 +1,14 @@
 section .multiboot_header
 header_start:
+    align 8
     ; Multiboot 2 magic number
-    dd 0xe85250d6
-    dd 0
+    dd 0xE85250D6
+    dd 0x0
     ; Header length
     dd header_end - header_start
 
     ; Checksum
-    dd 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
+    dd -(0xE85250D6 + 0x0 + (header_end - header_start))
 
     ; End tag
     dw 0
