@@ -69,7 +69,7 @@ init_paging:
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
-    jmp $
+    
     
     ; Load GDT
     lgdt [gdt64_pointer - offset]
