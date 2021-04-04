@@ -44,11 +44,11 @@ init_paging:
     
     
 
-    ; Call pdmap
-    push pd2 ; Map pd2
-    push 0b00000011 ; and use flags read, and present
+    ; Call pdmap to return address sub offset
+    mov eax, pd2 ; Map pd2
+    mov ebx, 0b00000011 ; and use flags read, and present
     call pdmap ; Call
-
+    
     ; Load PML4
     mov eax, pml4 - offset
     mov cr3, eax
@@ -80,12 +80,16 @@ init_paging:
 pdmap:
     ; This function maps a page directory, using provided flags
 
-    ; ESP + 4 is flags, ESP + 8 is directory
+    ; Push arguments
+    push eax
+    push ebx
+
+    ; ESP is flags, ESP + 4 is directory
     
     ; Check if huge page bit is set, if not, assume 4K pages, if it is, 2M
 
     ; Check if bit 7 of flags is set
-    mov eax, [esp + 4]
+    mov eax, [esp]
     and eax, 1 << (7)
     cmp eax, 0
 
@@ -111,13 +115,11 @@ pdmap:
     mov edx, eax ; We want size in edx
     mul ecx ; Multiply size by count
 
-    or edx, [esp + 4] ; Set flags on size
+    or edx, [esp] ; Set flags on size
 
     ; Move into entry
-    mov [esp - 4], ebx
-    mov ebx, [esp + 8]
+    mov ebx, [esp + 4]
     mov [ebx - offset + ecx * 8], edx ; Move into table
-    mov ebx, [esp-4]
 
     ; Increment counter
     inc ecx
@@ -127,10 +129,13 @@ pdmap:
     ; The actual jump
     jle .map1
 
+    ; Pop from stack
+    pop eax
+    pop eax
     
-    
-    ret ; Return when we are done
 
+    
+    ret ; return
 
 ; Here we have some checks
 
