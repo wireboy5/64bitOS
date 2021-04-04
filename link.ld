@@ -5,8 +5,8 @@
 ENTRY(_start)
 SECTIONS
 {
-  	. = 0x100000;
-	.boot : AT (.)
+  	. = 1M;
+	.multiboot_header ALIGN (4K) : AT(.)
     {
         /* ensure that the multiboot header is at the beginning */
         *(.multiboot_header)
@@ -49,5 +49,7 @@ SECTIONS
 	/* Add a symbol that indicates the end address of the kernel. */
 	_kernel_end = .;
 
-  end = .; _end = .; __end = .;
+  	end = .; _end = .; __end = .;
+
+	
 } 
