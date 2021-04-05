@@ -287,6 +287,7 @@ error:
 
 
 section .bss
+align 4096
 ; We want a single PML4
 pml4:
     resb 4096
@@ -304,8 +305,6 @@ pd:
 ; We treat these almost like an array
 pts:
     resb 4096 * 512
-
-align 4096
 stack_begin:
     resb 4096
 stack_end:
