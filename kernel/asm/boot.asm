@@ -1,6 +1,5 @@
 global _start
 extern entry
-extern kernOffset
 
 %define offset 0xC0000000
 ;%define offset 0
@@ -42,10 +41,10 @@ init_paging:
     
 
     
-    mov eax, pd
+    mov eax, pd - offset
     mov ebx, 0b11
-    mov edx, pts
-
+    mov edx, pts - offset
+    call pdmap
     
     
     ; Load PML4
@@ -62,6 +61,7 @@ init_paging:
     rdmsr
     or eax, 1 << 8
     wrmsr
+    
     
     
     ; Enable paging
@@ -87,126 +87,114 @@ pdmap:
     ; Discard any non flags in ebx
     and ebx, 0b111111111111
 
-    ; Initialize the counter
-    mov ecx, 0
-
-.map1 ; This loop maps the page directory
-
-    
-
-    ; ESI needs to contain the address of the entry
-    mov esi, pts ; Move the address of the array in
-    
-    mov [esp - 4], ecx ; Temporarily stash ecx
-    imul ecx, 8 ; Multiply ecx
-    add esi, ecx ; Add the offset
-    mov ecx, [esp - 4] ; Get stashed ecx
-
-    ; Now lets map the page table at this address
-
-    ; Save eax, ebx, edx
+    ; Save argument registers
     push eax
-    push ebx
     push edx
 
-    ; Now set the eax register to the address of the page table
-    mov eax, esi
+    mov eax, edx ; the 512 PTs
 
-    ; And we want the present and writable flags
-    mov ebx, 0b11
+    ; ebx already has flags
 
-    ; And the starting address (ecx * 2M)
-    mov [esp - 4], ecx ; Temporarily stash ecx
-    imul ecx, 0x200000 ; Multiply ecx
-    mov edx, ecx
-    mov ecx, [esp - 4] ; Get stashed ecx
+    ; We start at an offset of 0
+    mov edx, 0x0
 
-    ; Now map
-    call ptmap
+    ; Map every page table
+    call map_every_pt
 
-    ; And now grab the saved registers
-    pop eax
-    pop ebx
+    ; Pop argument registers
     pop edx
+    pop eax
 
+    ; Every page table has its entries mapped now.
 
-    ; Now lets apply the flags to the address
-    and esi, ebx
+    ; Now lets Add the flags to each one and move them into a page directory entry
 
-    ; And now lets move it into the PDE
-    mov [eax - offset + 8 * ecx], esi
-
-
-    inc ecx ; Increment the counter
-
-    cmp ecx, 512 ; Compare ecx to 512
-    jle .map1 ; <= : jump to .map1
-
-    ;; End .map1 loop
-
-    ret ; Return
-
-
-
-ptmap:
-    ; This function maps a page table.
-    ; This functions takes three arguments, the page table, the flags,
-    ; and the starting address
-    ; in eax, ebx, and edx respectively
-
-    ; Save EDX
-    push edx
-
-    ; Discard anything in EBX that is not a flag
-    and ebx, 0b111111111111
-
-    ; Save the counter register
-    push ecx
-
-    ; Initialize the counter register
+    ; First initialize the counter
     mov ecx, 0
 
-    ; Lets use EDX to store our current index in the page table
-    mov esi, 8
+.map1 ; The loop lable
 
-.map1 ; This loop maps the page table
-    
-    mov edi, eax ; Move the address of the page table into EDI
-    add edi, edx ; Add EDX (the offset) to EDI (the address)
-
-    ; Now EDI contains the address of the page table entry
-    ; EDX contains the physical address to map to
-    ; and ESI contains the offset in the page table to use
-
-    ; Add the flags to EDX
+    ; Apply flags to EDX
     or edx, ebx
 
-    ; Put EDX into the table
-    mov [edi - offset], edx
+    ; Move into current PDE
+    mov [eax + ecx * 8], edx
 
-
-
-    ; Add 4096 to the starting address
+    ; Increment EDX by the size of a PT (4096)
     add edx, 0x1000
 
-    add esi, 8 ; Add 8 (the size of an entry) to EDX
 
-    inc ecx ; Increment the counter
+    ;; LOOP FOOTER
+    inc ecx ; Increment ecx
+    cmp ecx, 512 ; compare counter to 512
+    jle .map1 ; if <= : .map1
 
-    cmp ecx, 512 ; Compare ecx to 512
+    ;; END LOOP
+    
+    ret ; Return
 
-    jle .map1 ; If ecx is <= 512, loop
+map_every_pt:
+    ; Maps 512 PTs at a given address
+    ; EAX : address of 512 PTs
+    ; EBX : flags of entries
+    ; EDX : offset address
 
-    ;; End .map1 loop
+    ; Clear all non flags in EBX
+    and ebx, 0b111111111111
 
-    ; Get the saved counter
-    pop ecx
+    ; Init counter
+    mov ecx, 0
+    
+.map1 ; Loop lable
 
-    ; Get the saved EDX
-    pop edx
+    call ptmap ; Map the page table. The arguments are already setup :)
+
+    ; We do not even have to increment edx, because ptmap does this for us!
+    ; It iterates 512 times, and each time it adds the size of a page for it's own
+    ; purposes. This helps us too.
+
+    add eax, 0x1000 ; Add 4096 to eax (4096 is the size of a PT)
+
+    ;; LOOP FOOTER
+    inc ecx ; Increment ecx
+    cmp ecx, 512 ; compare counter to 512
+    jle .map1 ; if <= : .map1
+
+    ;; END LOOP
 
     ret ; Return
 
+ptmap:
+    ; Maps a page table. Takes the following as arguments
+    ; EAX : address of page table
+    ; EBX : flags of entries
+    ; EDX : starting offset address
+    
+    ; Clear all non flags in EBX
+    and ebx, 0b111111111111
+    
+    ; Initialize the counter
+    mov ecx, 0
+    
+
+.map1 ; Label for loop
+
+    ; Apply flags (EBX) to EDX
+    or edx, ebx
+
+    ; Move entry into page table
+    mov [eax + ecx], edx
+
+    ; Increment ECX by the size of an entry (8)
+    add ecx, 8
+
+    ; Increment EDX by the size of a page (4096)
+    add edx, 0x1000
+
+    cmp ecx, 512 * 8 ; Compare ecx to 512 * 8 (Size of each entry)
+    jle .map1 ; if <= : jump to .map1
+    
+    ret ; Return
 
 
 ; Here we have some checks
