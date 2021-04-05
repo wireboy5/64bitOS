@@ -15,8 +15,6 @@ entry:
     mov fs, ax
     mov gs, ax
     
-    ; Reset stack
-    mov esp, stack_end
     
     
     ; Call the kernel
