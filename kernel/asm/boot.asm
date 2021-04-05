@@ -35,7 +35,7 @@ init_paging:
     
 
     ; Map the higher half entry in PDPT
-    mov eax, pd2 - offset
+    mov eax, pd - offset
     or eax, 0b11
     mov [pdpt - offset + 3 * 8], eax
 
@@ -96,7 +96,11 @@ pdmap:
 
     ; ESI needs to contain the address of the entry
     mov esi, pts ; Move the address of the array in
-    add esi, ecx * 8 ; Add the offset
+    
+    mov [esp - 4], ecx ; Temporarily stash ecx
+    imul ecx, 8 ; Multiply ecx
+    add esi, ecx ; Add the offset
+    mov ecx, [esp - 4] ; Get stashed ecx
 
     ; Now lets map the page table at this address
 
@@ -105,18 +109,38 @@ pdmap:
     push ebx
     push edx
 
-    ; Now set the 
+    ; Now set the eax register to the address of the page table
+    mov eax, esi
 
-    ; Now lets apply the flags
+    ; And we want the present and writable flags
+    mov ebx, 0b11
+
+    ; And the starting address (ecx * 2M)
+    mov [esp - 4], ecx ; Temporarily stash ecx
+    imul ecx, 0x200000 ; Multiply ecx
+    mov edx, ecx
+    mov ecx, [esp - 4] ; Get stashed ecx
+
+    ; Now map
+    call ptmap
+
+    ; And now grab the saved registers
+    pop eax
+    pop ebx
+    pop edx
+
+
+    ; Now lets apply the flags to the address
     and esi, ebx
 
-    
+    ; And now lets move it into the PDE
+    mov [eax - offset + 8 * ecx], esi
 
 
     inc ecx ; Increment the counter
 
     cmp ecx, 512 ; Compare ecx to 512
-    jle .map ; <= : jump to .map1
+    jle .map1 ; <= : jump to .map1
 
     ;; End .map1 loop
 
