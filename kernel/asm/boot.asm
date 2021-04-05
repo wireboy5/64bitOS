@@ -315,11 +315,6 @@ pd:
 pts:
     resb 4096 * 512
 
-
-; Make stack globaly available
-global stack_begin
-global stack_end
-
 ; Now for the stack
 stack_begin:
     resb 4096
