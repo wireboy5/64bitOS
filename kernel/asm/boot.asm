@@ -42,12 +42,11 @@ init_paging:
     
 
     
-    
+    mov eax, pd
+    mov ebx, 0b11
+    mov edx, pts
 
-    ; Call pdmap to return address sub offset
-    mov eax, pd2 ; Map pd2
-    mov ebx, 0b00000011 ; and use flags read, and present
-    call pdmap ; Call
+    
     
     ; Load PML4
     mov eax, pml4 - offset
@@ -77,65 +76,114 @@ init_paging:
     ; Long jump
     jmp 0x08:entry - offset
 
+
 pdmap:
-    ; This function maps a page directory, using provided flags
+    ; This function maps a page directory
 
-    ; Push arguments
-    push eax
-    push ebx
+    ; eax is the page directory
+    ; ebx is the flags
+    ; edx is the address where we want to have 512 page tables
 
-    ; ESP is flags, ESP + 4 is directory
-    
-    ; Check if huge page bit is set, if not, assume 4K pages, if it is, 2M pages
+    ; Discard any non flags in ebx
+    and ebx, 0b111111111111
 
-    ; Check if bit 7 of flags is set
-    mov eax, [esp]
-    and eax, 1 << (7)
-    cmp eax, 0
-
-   
-    ; If it is, then 2M pages are used
-    jne .is_huge
-
-    mov eax, 0x1000 ; Default to 4K
-    jmp .donecheck ; Do not take 2M
-
-    
-.is_huge ; Label for using 2M pages
-
-    mov eax, 0x200000 ; 2M in eax
-    
-.donecheck
-
-    ; Initialize counter at zero
+    ; Initialize the counter
     mov ecx, 0
 
-.map1
-
-    mov edx, eax ; We want size in edx
-    mul ecx ; Multiply size by count
-
-    or edx, [esp] ; Set flags on size
-
-    ; Move into entry
-    mov ebx, [esp + 4]
-    mov [ebx - offset + ecx * 8], edx ; Move into table
-
-    ; Increment counter
-    inc ecx
-
-    ; If counter is less than or equal to 512 then loop
-    cmp ecx, 512
-    ; The actual jump
-    jle .map1
-
-    ; Pop from stack
-    pop eax
-    pop eax
-    
+.map1 ; This loop maps the page directory
 
     
-    ret ; return
+
+    ; ESI needs to contain the address of the entry
+    mov esi, pts ; Move the address of the array in
+    add esi, ecx * 8 ; Add the offset
+
+    ; Now lets map the page table at this address
+
+    ; Save eax, ebx, edx
+    push eax
+    push ebx
+    push edx
+
+    ; Now set the 
+
+    ; Now lets apply the flags
+    and esi, ebx
+
+    
+
+
+    inc ecx ; Increment the counter
+
+    cmp ecx, 512 ; Compare ecx to 512
+    jle .map ; <= : jump to .map1
+
+    ;; End .map1 loop
+
+    ret ; Return
+
+
+
+ptmap:
+    ; This function maps a page table.
+    ; This functions takes three arguments, the page table, the flags,
+    ; and the starting address
+    ; in eax, ebx, and edx respectively
+
+    ; Save EDX
+    push edx
+
+    ; Discard anything in EBX that is not a flag
+    and ebx, 0b111111111111
+
+    ; Save the counter register
+    push ecx
+
+    ; Initialize the counter register
+    mov ecx, 0
+
+    ; Lets use EDX to store our current index in the page table
+    mov esi, 8
+
+.map1 ; This loop maps the page table
+    
+    mov edi, eax ; Move the address of the page table into EDI
+    add edi, edx ; Add EDX (the offset) to EDI (the address)
+
+    ; Now EDI contains the address of the page table entry
+    ; EDX contains the physical address to map to
+    ; and ESI contains the offset in the page table to use
+
+    ; Add the flags to EDX
+    or edx, ebx
+
+    ; Put EDX into the table
+    mov [edi - offset], edx
+
+
+
+    ; Add 4096 to the starting address
+    add edx, 0x1000
+
+    add esi, 8 ; Add 8 (the size of an entry) to EDX
+
+    inc ecx ; Increment the counter
+
+    cmp ecx, 512 ; Compare ecx to 512
+
+    jle .map1 ; If ecx is <= 512, loop
+
+    ;; End .map1 loop
+
+    ; Get the saved counter
+    pop ecx
+
+    ; Get the saved EDX
+    pop edx
+
+    ret ; Return
+
+
 
 ; Here we have some checks
 
@@ -227,12 +275,23 @@ error:
 
 
 section .bss
+; We want a single PML4
 pml4:
     resb 4096
-pdpt
+; A single pdpt
+pdpt:
     resb 4096
-pd2:
+; And a single page directory
+pd:
     resb 4096
+
+; we only use one of each of those because we are only mapping a 
+; relatively small quantity of memory, enough to get us functioning in long mode
+
+; However, we want 512 page tables, for entry in the page directory
+; We treat these almost like an array
+pts:
+    resb 4096 * 512
 
 align 4096
 stack_begin:
