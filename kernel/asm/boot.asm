@@ -305,6 +305,8 @@ pd:
 ; We treat these almost like an array
 pts:
     resb 4096 * 512
+
+; Now for the stack
 stack_begin:
     resb 4096
 stack_end:
