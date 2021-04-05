@@ -38,6 +38,11 @@ init_paging:
     or eax, 0b11
     mov [pdpt - offset + 3 * 8], eax
 
+    ; Map the lower half entry in PDPT
+    mov eax, pd - offset
+    or eax, 0b11
+    mov [pdpt - offset + 0 * 8], eax
+
     
 
     
@@ -68,13 +73,17 @@ init_paging:
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
+
+    ; Do not unmap lower half
+    ; This current paging system is simply for
+    ; convinience whilst setting up a new system
     
-    
+
     ; Load GDT
-    lgdt [gdt64_pointer - offset]
+    lgdt [gdt64_pointer]
 
     ; Long jump
-    jmp 0x08:entry - offset
+    jmp 0x08:entry
 
 
 pdmap:
@@ -306,12 +315,19 @@ pd:
 pts:
     resb 4096 * 512
 
+
+; Make stack globaly available
+global stack_begin
+global stack_end
+
 ; Now for the stack
 stack_begin:
     resb 4096
 stack_end:
 
 section .rodata
+
+align 4096
 
 gdt64_start:
 gdt64_null:
@@ -328,14 +344,14 @@ gdt64_code:
 
 gdt64_data:
     dw 0x0000
-    dw 0x0000
+    dw 0xFFFF
     db 0x00
     db 0b10010010
-    db 0b10100000
+    db 0b10101111
     db 0x00
 
 gdt64_end:
 
 gdt64_pointer:
-    dw (gdt64_end - offset) - (gdt64_start - offset) - 1
-    dd gdt64_start - offset
+    dw (gdt64_end) - (gdt64_start) - 1
+    dd gdt64_start

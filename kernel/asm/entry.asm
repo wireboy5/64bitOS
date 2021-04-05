@@ -1,7 +1,9 @@
 global entry
 extern kmain
-section .text
 bits 64
+
+section .text
+align 4096
 entry:
     ; Yay! Long Mode!
 
@@ -12,9 +14,19 @@ entry:
     mov es, ax
     mov fs, ax
     mov gs, ax
-
+    
+    ; Reset stack
+    mov esp, stack_end
+    
+    
     ; Call the kernel
     call kmain
 
     ; Make sure the last instruction is halt, so we do not execute garbabge.
     hlt
+
+section .bss
+align 4096
+stack_top:
+    resb 4096
+stack_end:

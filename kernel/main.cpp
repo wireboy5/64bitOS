@@ -4,9 +4,7 @@
 extern "C" size_t kernelOffset;
 extern "C" size_t _kernel_start;
 
-void kprint(){
 
-}
 
 extern "C" int kmain () {
 
@@ -14,6 +12,6 @@ extern "C" int kmain () {
     char* vidmem_high = (char*)(0xb8000 + 0xC0000000);
     vidmem_high[2] = 'H';
 
-    kprint();
+    
     return 0;
 }
