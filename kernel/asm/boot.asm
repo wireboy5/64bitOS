@@ -45,7 +45,7 @@ init_paging:
 
     
 
-    
+    ; Map Page directory
     mov eax, pd - offset
     mov ebx, 0b11
     mov edx, pts - offset
@@ -93,8 +93,6 @@ pdmap:
     ; ebx is the flags
     ; edx is the address where we want to have 512 page tables
 
-    ; Discard any non flags in ebx
-    and ebx, 0b111111111111
 
     ; Save argument registers
     push eax
@@ -148,9 +146,6 @@ map_every_pt:
     ; EBX : flags of entries
     ; EDX : offset address
 
-    ; Clear all non flags in EBX
-    and ebx, 0b111111111111
-
     ; Init counter
     mov ecx, 0
     
@@ -179,8 +174,6 @@ ptmap:
     ; EBX : flags of entries
     ; EDX : starting offset address
     
-    ; Clear all non flags in EBX
-    and ebx, 0b111111111111
     
     ; Initialize the counter
     mov ecx, 0
