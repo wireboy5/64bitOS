@@ -53,26 +53,12 @@ init_paging:
     call map_pts
     
     ; Here we map the page directory
-    mov ecx, 512 ; 512 entries
-
     mov eax, pts - offset ; The address of the page tables
-
+    mov ecx, 512 ; 512 entries
     mov ebx, 0x11 ; The flags
-
     mov edx, pd - offset ; The address of the page directory entry
+    call map_pd ; Map the page directory
 
-.map_pde:
-
-    or eax, ebx ; Apply flags to the entry
-
-    mov [edx], eax ; Move into table
-
-    add eax, 0x1000 ; Next table
-    add edx, 8 ; Next entry
-
-    dec ecx
-    cmp ecx, 0
-    jg .map_pde
 
     
     ; Load PML4
@@ -140,8 +126,26 @@ map_pts:
 
     ret
 
+map_pd:
+    ; EAX : address of the page tables
+    ; EBX : flags of entries
+    ; ECX : number of tables
+    ; EDX : address of the page directory entry
 
+.map_pde:
 
+    or eax, ebx ; Apply flags to the entry
+
+    mov [edx], eax ; Move into table
+
+    add eax, 0x1000 ; Next table
+    add edx, 8 ; Next entry
+
+    dec ecx
+    cmp ecx, 0
+    jg .map_pde
+
+    ret
 
 ; Here we have some checks
 
