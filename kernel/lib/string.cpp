@@ -14,13 +14,6 @@ void* memmove(void* dstptr, const void* srcptr, size_t size) {
 	return dstptr;
 }
 
-size_t strlen(const char* str) {
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
-}
-
 
 int memcmp(const void* aptr, const void* bptr, size_t size) {
 	const unsigned char* a = (const unsigned char*) aptr;
@@ -50,4 +43,78 @@ void* memcpy(void* __restrict dstptr, const void* __restrict srcptr, size_t size
 	for (size_t i = 0; i < size; i++)
 		dst[i] = src[i];
 	return dstptr;
+}
+
+void swap(char *x, char *y) {
+	char t = *x; *x = *y; *y = t;
+}
+
+char* reverse(char *buffer, int i, int j)
+{
+	while (i < j)
+		swap(&buffer[i++], &buffer[j--]);
+
+	return buffer;
+}
+
+char* itoa(int value, char* buffer, int base)
+{
+	// invalid input
+	if (base < 2 || base > 32)
+		return buffer;
+
+	// consider absolute value of number
+	int n = value < 0 ? (0-value) : (value);
+
+	int i = 0;
+	while (n)
+	{
+		int r = n % base;
+
+		if (r >= 10) 
+			buffer[i++] = 65 + (r - 10);
+		else
+			buffer[i++] = 48 + r;
+
+		n = n / base;
+	}
+
+	// if number is 0
+	if (i == 0)
+		buffer[i++] = '0';
+
+	// If base is 10 and value is negative, the resulting string 
+	// is preceded with a minus sign (-)
+	// With any other base, value is always considered unsigned
+	if (value < 0 && base == 10)
+		buffer[i++] = '-';
+
+	buffer[i] = '\0'; // null terminate string
+
+	// reverse the string and return it
+	return reverse(buffer, 0, i - 1);
+}
+
+void strappend(char s[], char n) {
+    int len = strlen(s);
+    s[len] = n;
+    s[len+1] = '\0';
+}
+
+void strbackspace(char s[]) {
+    int len = strlen(s);
+    s[len-1] = '\0';
+}
+
+size_t strlen(char s[]) {
+    int i = 0;
+    while (s[i] != '\0') ++i;
+    return i;
+}
+size_t strcmp(char s1[], char s2[]) {
+    int i;
+    for (i = 0; s1[i] == s2[i]; i++) {
+        if (s1[i] == '\0') return 0;
+    }
+    return s1[i] - s2[i];
 }

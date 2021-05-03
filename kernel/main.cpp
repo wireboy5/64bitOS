@@ -11,9 +11,6 @@ extern "C" int kmain () {
 
     
     clear_screen();
-    put_char('a',0xf,0x0);
-    put_char('b',0xf,0x0);
-    put_char('\n',0xf,0x0);
-    put_char('c',0xf,0x0);
+    
     return 0;
 }
