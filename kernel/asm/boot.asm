@@ -20,7 +20,7 @@ _start:
     call check_long_mode
 
     ; Save the multiboot info structure
-    mov mboot_info, ebx
+    mov [mboot_info], ebx
     
     ; Initialize paging
     jmp init_paging
@@ -267,7 +267,8 @@ stack_end:
 ; This is the address of mboot info.
 ; This will be set at the beginning of the _start label
 [global mboot_info]
-mboot_info: resq
+mboot_info:
+    resq 1
 
 section .rodata
 

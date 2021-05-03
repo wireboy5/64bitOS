@@ -4,17 +4,16 @@
 extern "C" size_t kernelOffset;
 extern "C" size_t _kernel_start;
 
-
+// Multiboot 2 info
+extern "C" size_t mboot_info;
 
 extern "C" int kmain () {
 
-    // Test that higher half works
-    char* vidmem_high = (char*)(0xC00B8000);
-    vidmem_high[0] = 'H';
-
-    // Test that lower half currently works
-    char* vidmem_low = (char*)(0xb8000);
-    vidmem_low[2] = 'L';
     
+    clear_screen();
+    put_char('a',0xf,0x0);
+    put_char('b',0xf,0x0);
+    put_char('\n',0xf,0x0);
+    put_char('c',0xf,0x0);
     return 0;
 }

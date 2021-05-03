@@ -1,3 +1,3 @@
 #pragma once
-#include <kernel/lib/paging.h>
+#include <kernel/lib/vgatext.h>
 #include <stddef.h>
