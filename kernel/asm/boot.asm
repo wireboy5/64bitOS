@@ -45,12 +45,35 @@ init_paging:
 
     
 
-    ; Map Page directory
-    mov eax, pd - offset
+    ; Map all page tables
+    mov eax, pts - offset
     mov ebx, 0b11
-    mov edx, pts - offset
-    call pdmap
+    mov ecx, 512 * 512 ; This is how many entries we have in all of the tables
+    mov edx, 0
+    call map_pts
     
+    ; Here we map the page directory
+    mov ecx, 512 ; 512 entries
+
+    mov eax, pts - offset ; The address of the page tables
+
+    mov ebx, 0x11 ; The flags
+
+    mov edx, pd - offset ; The address of the page directory entry
+
+.map_pde:
+
+    or eax, ebx ; Apply flags to the entry
+
+    mov [edx], eax ; Move into table
+
+    add eax, 0x1000 ; Next table
+    add edx, 8 ; Next entry
+
+    dec ecx
+    cmp ecx, 0
+    jg .map_pde
+
     
     ; Load PML4
     mov eax, pml4 - offset
@@ -73,130 +96,51 @@ init_paging:
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
-
+    
     ; Do not unmap lower half
     ; This current paging system is simply for
     ; convinience whilst setting up a new system
     
-
+    
     ; Load GDT
     lgdt [gdt64_pointer]
 
     ; Long jump
     jmp 0x08:entry
 
-
-pdmap:
-    ; This function maps a page directory
-
-    ; eax is the page directory
-    ; ebx is the flags
-    ; edx is the address where we want to have 512 page tables
-
-
-    ; Save argument registers
-    push eax
-    push edx
-
-    mov eax, edx ; the 512 PTs
-
-    ; ebx already has flags
-
-    ; We start at an offset of 0
-    mov edx, 0x0
-
-    ; Map every page table
-    call map_every_pt
-
-    ; Pop argument registers
-    pop edx
-    pop eax
-
-    ; Every page table has its entries mapped now.
-
-    ; Now lets Add the flags to each one and move them into a page directory entry
-
-    ; First initialize the counter
-    mov ecx, 0
-
-.map1 ; The loop lable
-
-    ; Apply flags to EDX
-    or edx, ebx
-
-    ; Move into current PDE
-    mov [eax + ecx * 8], edx
-
-    ; Increment EDX by the size of a PT (4096)
-    add edx, 0x1000
-
-
-    ;; LOOP FOOTER
-    inc ecx ; Increment ecx
-    cmp ecx, 512 ; compare counter to 512
-    jle .map1 ; if <= : .map1
-
-    ;; END LOOP
-    
-    ret ; Return
-
-map_every_pt:
-    ; Maps 512 PTs at a given address
-    ; EAX : address of 512 PTs
+map_pts:
+    ; EAX : address of the page tables
     ; EBX : flags of entries
+    ; ECX : number of tables
     ; EDX : offset address
-
-    ; Init counter
-    mov ecx, 0
-    
-.map1 ; Loop lable
-
-    call ptmap ; Map the page table. The arguments are already setup :)
-
-    ; We do not even have to increment edx, because ptmap does this for us!
-    ; It iterates 512 times, and each time it adds the size of a page for it's own
-    ; purposes. This helps us too.
-
-    add eax, 0x1000 ; Add 4096 to eax (4096 is the size of a PT)
-
-    ;; LOOP FOOTER
-    inc ecx ; Increment ecx
-    cmp ecx, 512 ; compare counter to 512
-    jle .map1 ; if <= : .map1
-
-    ;; END LOOP
-
-    ret ; Return
-
-ptmap:
-    ; Maps a page table. Takes the following as arguments
-    ; EAX : address of page table
-    ; EBX : flags of entries
-    ; EDX : starting offset address
-    
-    
-    ; Initialize the counter
-    mov ecx, 0
     
 
-.map1 ; Label for loop
+    ; Clear all non flags
+    and ebx, 0xFFF
 
-    ; Apply flags (EBX) to EDX
+    
+
+    ; Apply the flags on EDX
     or edx, ebx
 
-    ; Move entry into page table
-    mov [eax + ecx], edx
+.map1
+    ; Move the address into the table
+    mov [eax], edx
 
-    ; Increment ECX by the size of an entry (8)
-    add ecx, 8
-
-    ; Increment EDX by the size of a page (4096)
+    ; Add 4096 to the offset address
     add edx, 0x1000
 
-    cmp ecx, 512 * 8 ; Compare ecx to 512 * 8 (Size of each entry)
-    jle .map1 ; if <= : jump to .map1
-    
-    ret ; Return
+    ; Move the the next table
+    add eax, 8
+
+    dec ecx ; Decrement the counter
+    cmp ecx, 0 ; Compare the counter to zero
+    jg .map1 ; if ecx > 0, loop
+
+
+    ret
+
+
 
 
 ; Here we have some checks
@@ -288,7 +232,7 @@ error:
 
 
 
-section .bss
+section .bss, "aw", @nobits
 align 4096
 ; We want a single PML4
 pml4:
