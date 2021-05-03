@@ -1,15 +1,25 @@
 #pragma once
-
 #include <stdint.h>
 #include <kernel/lib/string.h>
 #include <kernel/lib/io.h>
+#include <stdarg.h>
 
 
-#define VGA_ROW 80
-#define VGA_COL 25
-#define VGA_TEXT_MEM 0xC00B8000
+#define SCREENHEIGHT 25
+#define SCREENWIDTH 80
+#define TEXTMEM 0xB8000
 
-void set_cursor_location(uint16_t x, uint16_t y);
-void setch(uint32_t x, uint32_t y, char c, char forecolor, char backcolor);
+
+void setch(char c, uint32_t x, uint32_t y, uint8_t attr);
+
 void clear_screen();
-void put_char(char c, char foreolor, char backcolor);
+
+void kprint(char * s);
+
+
+void set_cursor_position(uint8_t x, uint8_t y);
+
+
+uint32_t get_offset(uint32_t x, uint32_t y);
+uint32_t get_offset_row(uint32_t offset);
+uint32_t get_offset_col(uint32_t offset);

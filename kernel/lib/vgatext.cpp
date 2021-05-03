@@ -1,95 +1,113 @@
 #include "vgatext.h"
 
-uint16_t get_cursor_location(void) {
-    uint16_t pos = 0;
-    outb(0x3D4, 0x0F);
-    pos |= inb(0x3D5);
-    outb(0x3D4, 0x0E);
-    pos |= ((uint16_t)inb(0x3D5)) << 8;
-    return pos;
-}
-
-uint16_t get_cursor_x(void) {
-    uint16_t pos = get_cursor_location();
-    return pos % VGA_ROW;
-}
-
-uint16_t get_cursor_y(void) {
-    uint16_t pos = get_cursor_location();
-    return pos / VGA_ROW;
-}
 
 
-void set_cursor_location(uint16_t x, uint16_t y) {
-    uint16_t pos = y * VGA_ROW + x;
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, pos & 0xFF);
-    outb(0x3D4, 0x0E);
-    outb(0x3D4, (pos >> 8) & 0xFF);
-}
-
-
-
-/*
-    Sets a character at a position
-*/
-void setch(uint32_t x, uint32_t y, char c, char forecolor, char backcolor){
-    uint16_t pos = (y * VGA_ROW + (x));
-    if(y * VGA_ROW + x > VGA_ROW * VGA_COL) {
-        pos = VGA_ROW*VGA_COL;
+void setch(char c, uint32_t x, uint32_t y, uint8_t attr) {
+    
+    uint32_t position = get_offset(x,y);
+    if(position > (SCREENHEIGHT * SCREENWIDTH * 2)){
+        position = SCREENWIDTH * SCREENHEIGHT * 2;
     }
-    uint64_t attr = (backcolor << 4) | (forecolor & 0xF);
-    uint16_t* vidmem = (uint16_t*)VGA_TEXT_MEM;
-    vidmem[pos] = (c) | (attr << 8);
+    unsigned char *vidmem = (unsigned char*) TEXTMEM;
+    vidmem[position] = c;
+    vidmem[position+1] = attr;
+    
 }
 
-/*
-    Clears the screen
-*/
+void set_cursor_position(uint8_t x, uint8_t y){
+    uint16_t cursorLocation = y * 80 + x;
+    outb(0x3D4, 14);
+    outb(0x3D5, cursorLocation >> 8);
+    outb(0x3D4, 15);
+    outb(0x3D5, cursorLocation); 
+}
+
+uint32_t get_cursor_position(){
+    outb(0x3D4, 14);
+    int offset = inb(0x3D5);
+    offset = offset << 8;
+    outb(0x3D4, 15);
+    offset += inb(0x3D5);
+    return 2 * offset;
+}
+
 void clear_screen(){
-    for(int y = 0; y < VGA_COL; y++) {
-        for(int x = 0; x < VGA_ROW; x++) {
-            setch(x,y,' ',0x0,0x0);
+    
+    for(int x = 0; x < SCREENWIDTH; x++){
+        for(int y = 0; y < SCREENWIDTH; y++){
+            setch(' ',x,y,0x00);
         }
     }
-    set_cursor_location(0,0);
+    set_cursor_position(0,0);
 }
 
-
-
-
-void put_char(char c, char forecolor, char backcolor){
-    uint16_t curx = get_cursor_x();
-    uint16_t cury = get_cursor_y();
-
-    switch(c) {
+void print_char(char c, uint8_t attr){
+    // Get cursor position
+    uint32_t cursPos = get_cursor_position();
+    uint32_t cursX = get_offset_col(cursPos);
+    uint32_t cursY = get_offset_row(cursPos);
+    switch (c){
         case 0x08:
-            curx--; // Backspace
+            cursX--; // Backspace
             break;
         case '\t':
-            curx = (curx+8)&~(8-1); // Tab
+            cursX = (cursX+8) & ~(8-1); // Tab
             break;
         case '\r':
-            curx = 0; // Carriage return
+            cursX = 0;
             break;
         case '\n':
-            cury++;
-            curx = 0;
-            if(cury >= VGA_COL) {
-                char* dst = (char*)VGA_TEXT_MEM;
-                char* src = (char*)(VGA_TEXT_MEM+(VGA_ROW*2));
-                memmove(dst,src,(VGA_ROW*VGA_COL*2-(VGA_ROW*2)));
-                char* ll = (char*)VGA_TEXT_MEM + (VGA_ROW*VGA_COL*2-(VGA_ROW*2));
-                for(int i = 0; i < VGA_ROW; i++){
+            cursY++;
+            cursX = 0;
+            if(cursY >= SCREENHEIGHT){
+                char* dst = (char*)TEXTMEM;
+                char* src = (char*)(TEXTMEM+(SCREENWIDTH*2));
+                memmove(dst,src,(SCREENWIDTH*SCREENHEIGHT*2-(SCREENWIDTH*2)));
+                char* ll = (char*)TEXTMEM+(SCREENWIDTH*SCREENHEIGHT*2)-(SCREENWIDTH*2);
+                for(int i = 0; i < SCREENWIDTH; i++){
                     ll[i*2] = ' ';
-                    ll[i*2+1] = 0x00;
+                    ll[i*2+1] = 0x0f;
                 }
+                cursY--;
             }
             break;
         default:
-            setch(curx,cury,c,forecolor,backcolor);
-            curx++;
+            setch(c,cursX,cursY,attr);
+            cursX ++;
             break;
     }
-    set_cursor_location(curx,cury);
+    
+    set_cursor_position(cursX, cursY);
+}
+
+
+void kprint(char * s){
+    int i=0;
+    while(s[i]){
+        print_char(s[i],0x0f);
+        i++;
+    }
+}
+
+void put_char(char c){
+    print_char(c,0x0f);
+}
+
+
+
+
+
+
+
+
+
+
+uint32_t get_offset(uint32_t x, uint32_t y){
+    return ((y * SCREENWIDTH + x) * 2);
+}
+uint32_t get_offset_row(uint32_t offset){
+    return offset / (SCREENWIDTH * 2);
+}
+uint32_t get_offset_col(uint32_t offset){
+    return (offset - (get_offset_row(offset) * SCREENWIDTH * 2))/2;
 }
