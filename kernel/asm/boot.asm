@@ -1,5 +1,5 @@
-global _start
-extern entry
+[global _start]
+[extern entry]
 
 %define offset 0xC0000000
 ;%define offset 0
@@ -18,6 +18,9 @@ _start:
     call check_multiboot
     call check_cpuid
     call check_long_mode
+
+    ; Save the multiboot info structure
+    mov mboot_info, ebx
     
     ; Initialize paging
     jmp init_paging
@@ -260,6 +263,11 @@ pts:
 stack_begin:
     resb 4096
 stack_end:
+
+; This is the address of mboot info.
+; This will be set at the beginning of the _start label
+[global mboot_info]
+mboot_info: resq
 
 section .rodata
 
