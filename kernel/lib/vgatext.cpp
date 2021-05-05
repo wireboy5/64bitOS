@@ -93,7 +93,16 @@ void put_char(char c){
     print_char(c,0x0f);
 }
 
+void printf(char* format...) {
+    va_list args;
+    va_start(args, format);
 
+    char buf[33]; // Buffer for storing converted integers
+
+    uint8_t color = 0x0f;
+
+    va_end(args);
+}
 
 
 
