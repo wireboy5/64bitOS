@@ -34,7 +34,7 @@ kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS}
 
 # Runs the kernel
 run: grub
-	bochs -f bochsrc.txt -q
+	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso
 
 
 
