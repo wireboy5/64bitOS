@@ -2,6 +2,7 @@
     "files.associations": {
         "*.jsx": "javascriptreact",
         "string.h": "c",
-        "io.h": "c"
+        "io.h": "c",
+        "stddef.h": "c"
     }
 }
