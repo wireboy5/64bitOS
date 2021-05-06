@@ -21,6 +21,9 @@ _start:
 
     ; Save the multiboot info structure
     mov [mboot_info], ebx
+
+    mov ax, "t"
+    out 0x3f8, ax
     
     ; Initialize paging
     jmp init_paging
@@ -239,7 +242,7 @@ error:
 
 
 
-section .bss, "aw", @nobits
+section .bss
 align 4096
 ; We want a single PML4
 pml4:
