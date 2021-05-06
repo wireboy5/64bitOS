@@ -22,8 +22,7 @@ _start:
     ; Save the multiboot info structure
     mov [mboot_info], ebx
 
-    mov ax, "t"
-    out 0x3f8, ax
+    
     
     ; Initialize paging
     jmp init_paging
