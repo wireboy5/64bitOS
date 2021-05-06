@@ -13,12 +13,6 @@ header_start:
     ; Checksum
     dd -(MAGIC+HEADER_LENGTH)
 
-    ; Entry address
-    align 8
-    dw 3
-    dw 1
-    dd 12
-    dd _start
 
     ; We want a framebuffer
     align 8
@@ -29,6 +23,13 @@ header_start:
     dd 720
     dd 24
 
+    align 8
+mboot_info_request:
+    dw 1
+    dw 0
+    dd mboot_info_request_end - mboot_info_request
+    dd 8
+mboot_info_request_end:
     
     ; End tag
     align 8

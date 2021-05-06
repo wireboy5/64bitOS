@@ -1,3 +1,4 @@
 #pragma once
-#include <kernel/lib/vgatext.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <kernel/lib/multiboot2.h>

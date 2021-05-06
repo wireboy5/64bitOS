@@ -20,7 +20,7 @@ CXX_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -I ./
 # Our compiler and linker
 CXX = x86_64-elf-g++
 LD = x86_64-elf-ld
-
+GDB = x86_64-elf-gdb
 
 
 # A target to build the grub image
@@ -36,6 +36,12 @@ kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS}
 run: grub
 	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso
 
+bios: grub
+	qemu-system-x86_64 -hda image.iso
+
+debug: grub
+	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso &
+	${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
 
 
 # And here we define some rules for resolving wildcard object files
