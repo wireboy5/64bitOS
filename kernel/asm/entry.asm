@@ -20,6 +20,9 @@ entry:
     ; Call the kernel
     call kmain
 
+    ; Hang forever
+    jmp $
+    
     ; Make sure the last instruction is halt, so we do not execute garbabge.
     hlt
 
