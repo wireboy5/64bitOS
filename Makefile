@@ -37,10 +37,10 @@ run: grub
 	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial stdio
 
 bios: grub
-	qemu-system-x86_64 -hda image.iso
+	qemu-system-x86_64 -hda image.iso -serial stdio
 
 debug: grub
-	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso &
+	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial stdio &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
 
 
