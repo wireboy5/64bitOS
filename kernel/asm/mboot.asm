@@ -33,6 +33,12 @@ mboot_info_request_end:
 
     ; Entry address
     align 8
+    dw 9
+    dw 0
+    dd 12
+    dd _start
+    
+    align 8
     dw 3
     dw 0
     dd 12

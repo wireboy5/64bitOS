@@ -5,9 +5,7 @@
 
 void sprint(char* c);
 
-
- 
-static int init_serial();
+int init_serial();
 
 int serial_received();
  

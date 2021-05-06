@@ -10,10 +10,12 @@ extern "C" void* mboot_info;
 char* fb_addr;
 
 extern "C" int kmain () {
+    init_serial();
 
+    sprint("hello,world!");
     sysinfo info = get_info(mboot_info);
 
-    sprint("test");
+    
 
     return 0;
 }
