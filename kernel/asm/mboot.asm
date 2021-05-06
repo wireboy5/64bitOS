@@ -30,6 +30,13 @@ mboot_info_request:
     dd mboot_info_request_end - mboot_info_request
     dd 8
 mboot_info_request_end:
+
+    ; Entry address
+    align 8
+    dw 3
+    dw 0
+    dd 12
+    dd _start
     
     ; End tag
     align 8
