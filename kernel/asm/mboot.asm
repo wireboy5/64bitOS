@@ -2,8 +2,9 @@ section .multiboot_header
 extern _start
 %define MAGIC 0xE85250D6
 %define HEADER_LENGTH header_end - header_start
-
+%define offset 0xC0000000
 header_start:
+    align 8
     ; Multiboot 2 magic number
     dd MAGIC
     dd 0x0
@@ -33,16 +34,11 @@ mboot_info_request_end:
 
     ; Entry address
     align 8
-    dw 9
-    dw 0
-    dd 12
-    dd _start
-    
-    align 8
     dw 3
-    dw 0
+    dw 1
     dd 12
-    dd _start
+    dd _start - offset
+
     
     ; End tag
     align 8
