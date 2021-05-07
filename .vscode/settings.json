@@ -3,6 +3,7 @@
         "*.jsx": "javascriptreact",
         "string.h": "c",
         "io.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "stdint.h": "c"
     }
 }
