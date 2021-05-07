@@ -1,22 +1,12 @@
 #include <kernel/main.h>
 
-// Kernel offset, start, and end
-extern "C" size_t kernelOffset;
-extern "C" size_t _kernel_start;
+
 
 // Multiboot 2 info
 extern "C" void* mboot_info;
 
-char* fb_addr;
 
 extern "C" int kmain () {
-    
-    
-    sprint("hello,world!");
-    
-    sysinfo info = get_info(mboot_info);
-
-    
-
+    for(;;);
     return 0;
 }
