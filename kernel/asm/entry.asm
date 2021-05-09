@@ -1,7 +1,7 @@
 global entry
 extern kmain
 bits 64
-
+%define offset 0xFFFFFFFF80000000
 section .text
 align 4096
 entry:
@@ -14,7 +14,6 @@ entry:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    
     
     
     ; Call the kernel
