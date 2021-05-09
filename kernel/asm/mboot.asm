@@ -18,19 +18,14 @@ header_start:
     ; We want a framebuffer
     align 8
     dw 5
-    dw 1
+    dw 0
     dd 20
     dd 1280 ; 720x1280 24bit color
     dd 720
     dd 24
 
     align 8
-mboot_info_request:
-    dw 1
-    dw 0
-    dd mboot_info_request_end - mboot_info_request
-    dd 8
-mboot_info_request_end:
+
 
     ; Entry address
     align 8

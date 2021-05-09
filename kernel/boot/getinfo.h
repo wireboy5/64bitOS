@@ -3,6 +3,8 @@
 #include <stdint.h>
 
 #include <kernel/boot/multiboot2.h>
+#include <kernel/lib/serial.h>
+#include <kernel/lib/string.h>
 
 
 struct mboot_tags_header {
