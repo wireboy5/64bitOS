@@ -34,13 +34,16 @@ kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS}
 
 # Runs the kernel
 run: grub
-	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso
+	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt
 
 bios: grub
 	qemu-system-x86_64 -hda image.iso -serial file:serial.txt
 
+bochs: grub
+	bochs -f bochsrc.txt
+
 debug: grub
-	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso &
+	nohup qemu-system-x86_64 -no-shutdown -s -S -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
 
 

@@ -7,6 +7,7 @@ extern "C" void* mboot_info;
 
 
 extern "C" int kmain () {
-    for(;;);
+    char c[] = "\nhello,world!\n";
+    sprint(c);
     return 0;
 }

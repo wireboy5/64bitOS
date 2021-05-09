@@ -11,27 +11,28 @@ SECTIONS
         /* ensure that the multiboot header is at the beginning */
         *(.multiboot_header)
     }
-	
-	. += 0xC0000000;
+	kernOffset = 0xFFFFFFFF80000000;
+	. += kernOffset;
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
-  	kernOffset = 0xC0000000;
+  	/*kernOffset = 0xC0000000;*/
+	
 	
 	
 
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+	.text ALIGN (4K) : AT (ADDR (.text) - kernOffset)
 	{
 		*(.text)
     	code = .; _code = .; __code = .;
 	}
 	
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - kernOffset)
 	{
 		*(.rodata)
     	rodata = .; _rodata = .; __rodata = .;
 	}
 	
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+	.data ALIGN (4K) : AT (ADDR (.data) - kernOffset)
 	{
 		*(.data)
     	data = .; _data = .; __data = .;
@@ -39,7 +40,7 @@ SECTIONS
 
 	
 	
-	.bss  ALIGN (4K): AT (ADDR (.bss) - 0xC0000000)
+	.bss  ALIGN (4K): AT (ADDR (.bss) - kernOffset)
 	{
 		*(COMMON)
 		*(.bss)

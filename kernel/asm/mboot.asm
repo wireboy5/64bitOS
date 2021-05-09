@@ -2,7 +2,7 @@ section .multiboot_header
 extern _start
 %define MAGIC 0xE85250D6
 %define HEADER_LENGTH header_end - header_start
-%define offset 0xC0000000
+%define offset 0xFFFFFFFF80000000
 header_start:
     align 8
     ; Multiboot 2 magic number

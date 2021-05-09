@@ -1,7 +1,7 @@
 [global _start]
 [extern entry]
 
-%define offset 0xC0000000
+%define offset 0xFFFFFFFF80000000
 ;%define offset 0
 
 section .text
@@ -20,7 +20,7 @@ _start:
     call check_long_mode
 
     ; Save the multiboot info structure
-    mov [mboot_info], ebx
+    mov [mboot_info - offset], ebx
 
     
     
@@ -36,12 +36,17 @@ init_paging:
     or eax, 0b11
     mov [pml4 - offset], eax
 
+    ; Map 511th
+    mov eax, pdpt2 - offset
+    or eax, 0b11
+    mov [pml4 - offset + 511 * 8], eax
+
     
 
-    ; Map the higher half entry in PDPT
+    ; Map the higher half entry in PDPT2
     mov eax, pd - offset
     or eax, 0b11
-    mov [pdpt - offset + 3 * 8], eax
+    mov [pdpt2 - offset + 510 * 8], eax
 
     ; Map the lower half entry in PDPT
     mov eax, pd - offset
@@ -94,10 +99,10 @@ init_paging:
     
     
     ; Load GDT
-    lgdt [gdt64_pointer]
+    lgdt [gdt64_pointer - offset]
 
     ; Long jump
-    jmp 0x08:entry
+    jmp 0x08:entry - offset
 
 map_pts:
     ; EAX : address of the page tables
@@ -112,7 +117,7 @@ map_pts:
     
 
     ; Apply the flags on EDX
-    or edx, ebx
+    or edx, 0b11
 
 .map1
     ; Move the address into the table
@@ -139,7 +144,7 @@ map_pd:
 
 .map_pde:
 
-    or eax, ebx ; Apply flags to the entry
+    or eax, 0b11 ; Apply flags to the entry
 
     mov [edx], eax ; Move into table
 
@@ -242,12 +247,19 @@ error:
 
 
 section .bss
+
 align 4096
+; Now for the stack
+stack_begin:
+    resb 4096
+stack_end:
 ; We want a single PML4
 pml4:
     resb 4096
-; A single pdpt
+; two pdpts
 pdpt:
+    resb 4096
+pdpt2:
     resb 4096
 ; And a single page directory
 pd:
@@ -261,10 +273,7 @@ pd:
 pts:
     resb 4096 * 512
 
-; Now for the stack
-stack_begin:
-    resb 4096
-stack_end:
+
 
 ; This is the address of mboot info.
 ; This will be set at the beginning of the _start label
@@ -300,5 +309,5 @@ gdt64_data:
 gdt64_end:
 
 gdt64_pointer:
-    dw (gdt64_end) - (gdt64_start) - 1
-    dd gdt64_start
+    dw (gdt64_end - offset) - (gdt64_start - offset) - 1
+    dd gdt64_start - offset
