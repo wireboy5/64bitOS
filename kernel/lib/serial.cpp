@@ -43,9 +43,9 @@ void write_serial(char a) {
 }
 
 
-void sprint(char* c) {
-   while(*c) {
-      write_serial(*c);
-      c++;
+void serial_print(char* str) {
+   while(*str) {
+      write_serial(*str);
+      str++;
    }
 }

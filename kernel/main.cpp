@@ -5,7 +5,7 @@
 
 
 extern "C" int kmain (void* mboot) {
-    sprint("\nhello,world!\n");
+    log("\nhello,world!\n");
 
     sysinfo info = get_info(mboot);
     

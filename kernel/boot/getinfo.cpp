@@ -17,10 +17,7 @@ void parse_mboot_header(sysinfo* info, void* mboot_header) {
     // Tag Offset Address
     size_t tag_offset = 8;
 
-    
-    char c[33];
-    itoa(info->tags_header.total_size,c,10);
-    sprint(c);
+    log("Searching Multiboot Information Structure for useful data.");
 
     // Iterate over tags
     struct multiboot_tag* tag;
@@ -35,11 +32,19 @@ void parse_mboot_header(sysinfo* info, void* mboot_header) {
         char ttype[33];
         itoa(tag->size, tsize, 10);
         itoa(tag->type, ttype, 10);
-        sprint("Found tag of size: ");
-        sprint(tsize);
-        sprint(" type: ");
-        sprint(ttype);
-        sprint("\n");
+        log("Found tag of size: ");
+        serial_print(tsize);
+        serial_print(" type: ");
+        serial_print(ttype);
+        
+
+        switch(tag->type) {
+            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
+                serial_print(" - framebuffer");
+            default:
+                break;
+        }
+        serial_print("\n");
     }
 }
     
