@@ -14,7 +14,7 @@ ASMOBJECTS = ${ASM_SOURCES:.asm=.o} # One for ASM
 
 # Now lets create a variable for all of the flags to be passed to out
 # c compiler
-CXX_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -I ./
+CXX_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -I ./ -mno-red-zone -mcmodel=kernel
 
 # Here we declare variables containing the command to access
 # Our compiler and linker
