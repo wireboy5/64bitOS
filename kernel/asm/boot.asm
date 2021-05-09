@@ -11,7 +11,8 @@ _start:
     ; Setup stack, Without the kernel offset
     mov esp, stack_end - offset
 
-    
+    ; Save the multiboot info structure
+    mov [mboot_info - offset], ebx
     
 
     ; Run checks
@@ -19,9 +20,8 @@ _start:
     call check_cpuid
     call check_long_mode
 
-    ; Save the multiboot info structure
-    mov [mboot_info - offset], ebx
-
+    
+    
     
     
     ; Initialize paging

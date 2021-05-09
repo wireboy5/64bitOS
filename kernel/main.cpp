@@ -2,11 +2,16 @@
 
 
 
-// Multiboot 2 info
-extern "C" void* mboot_info;
 
 
-extern "C" int kmain () {
+extern "C" int kmain (void* mboot) {
     sprint("\nhello,world!\n");
+
+    sysinfo info = get_info(mboot);
+    
+    
+
+    
+    
     return 0;
 }

@@ -1,5 +1,6 @@
 global entry
 extern kmain
+extern mboot_info
 bits 64
 %define offset 0xFFFFFFFF80000000
 section .text
@@ -14,7 +15,9 @@ entry:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    
+
+    xor rdi, rdi
+    mov rdi, [mboot_info]
     
     ; Call the kernel
     call kmain
