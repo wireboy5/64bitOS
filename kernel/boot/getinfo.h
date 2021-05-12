@@ -18,7 +18,8 @@ struct framebuffer {
     size_t width;
     size_t height;
     size_t pitch;
-    size_t bpp;
+    uint8_t bpp;
+    uint8_t type;
 };
 
 struct sysinfo {

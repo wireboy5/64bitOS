@@ -2,12 +2,13 @@
 
 
 
-void parse_framebuffer(sysinfo* info, multiboot_tag_framebuffer* tag){
-    info->fb.addr   = tag->common.framebuffer_addr;
-    info->fb.bpp    = tag->common.framebuffer_bpp;
-    info->fb.height = tag->common.framebuffer_height;
-    info->fb.width  = tag->common.framebuffer_width;
-    info->fb.pitch  = tag->common.framebuffer_pitch;
+void parse_framebuffer(sysinfo* info, multiboot_tag_framebuffer_common* tag){
+    info->fb.addr   = tag->framebuffer_addr;
+    info->fb.bpp    = tag->framebuffer_bpp;
+    info->fb.height = tag->framebuffer_height;
+    info->fb.width  = tag->framebuffer_width;
+    info->fb.pitch  = tag->framebuffer_pitch;
+    info->fb.type   = tag->framebuffer_type;
 }
 
 void parse_mboot_header(sysinfo* info, void* mboot_header) {
@@ -41,6 +42,7 @@ void parse_mboot_header(sysinfo* info, void* mboot_header) {
         switch(tag->type) {
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 serial_print(" - framebuffer");
+                parse_framebuffer(info, (multiboot_tag_framebuffer_common*)tag);
             default:
                 break;
         }
