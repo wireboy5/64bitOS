@@ -26,9 +26,9 @@ struct page_map_level_4 {
 // And as such, we have 2048 page tables
 // Which each have 512 entries
 // Giving us 1048576 page table entries
-page_table page_tables[2048];
-page_directory page_directories[4];
-page_directory_pointer_table pdpts[3];
+page_table page_tables[512];
+page_directory page_directories[1];
+page_directory_pointer_table pdpts[2];
 page_map_level_4 pml4;
 
 /*
@@ -100,9 +100,7 @@ extern "C" void bootstrap_paging(void *mboot) {
     serial_print("[ BOOTSTRAP ] Mapping Page Directories\n");
     map_page_directories(&page_directories[0], &page_tables[0], 1, 0b11);
     
-    // Map framebuffer page directory
-    map_page_directories(&page_directories[1], &page_tables[512], 1, 0b11);
-
+    
     serial_print("[ BOOTSTRAP ] Mapping PDPTs\n");
 
     // Lower half
