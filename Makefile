@@ -43,8 +43,8 @@ bochs: grub
 	bochs -f bochsrc.txt
 
 debug: grub
-	nohup qemu-system-x86_64 -no-shutdown -s -S -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot &
-	${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
+	qemu-system-x86_64 -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot
+# ${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
 
 
 # And here we define some rules for resolving wildcard object files
