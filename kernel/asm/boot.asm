@@ -46,7 +46,7 @@ init_paging:
     ; Map the higher half entry in PDPT2
     mov eax, pd - offset
     or eax, 0b11
-    mov [pdpt2 - offset + 510 * 8], eax
+    mov [pdpt2 - offset + 511 * 8], eax
 
     ; Map the lower half entry in PDPT
     mov eax, pd - offset

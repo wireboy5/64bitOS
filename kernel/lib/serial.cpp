@@ -1,5 +1,6 @@
 #include "serial.h"
- 
+
+
 int init_serial() {
    outb(PORT + 1, 0x00);    // Disable all interrupts
    outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
@@ -21,6 +22,11 @@ int init_serial() {
    outb(PORT + 4, 0x0F);
    return 0;
 }
+
+extern "C" int _init_serial() {
+   return init_serial();
+}
+
 
 int serial_received() {
    return inb(PORT + 5) & 1;

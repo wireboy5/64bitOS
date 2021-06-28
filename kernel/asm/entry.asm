@@ -1,4 +1,6 @@
 global entry
+extern bootstrap_paging
+extern _init_serial
 extern kmain
 extern mboot_info
 bits 64
@@ -16,6 +18,20 @@ entry:
     mov fs, ax
     mov gs, ax
 
+    ; Initialize serial
+    call _init_serial
+
+    ; Multiboot info
+    xor rdi, rdi
+    mov rdi, [mboot_info]
+    
+    ; Now that we have access to 64 bit registers
+    ; we can do some more complex stuff.
+    ; So lets load new paging information
+    call bootstrap_paging
+
+    
+    ; Multiboot info
     xor rdi, rdi
     mov rdi, [mboot_info]
     
