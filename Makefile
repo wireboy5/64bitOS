@@ -1,65 +1,85 @@
-# This is a variable containing all of the c sources.
-# This will remain empty until the future
-CXX_SOURCES = $(wildcard kernel/*.cpp kernel/**/*.cpp kernel/**/**/*.cpp)
+# Get all assembly and C sources
+SOURCES = $(shell find kernel/ -type f -name '*.asm' -o -name '*.c')
 
-# We also do the same for c headers
-CXX_HEADERS = $(wildcard kernel/*.h kernel/**/*.h kernel/**/**/*.h)
+# Get all C headers
+C_HEADERS = $(shell find kernel/ -type f -name '*.h')
 
-# And we do the same for assembly files
-ASM_SOURCES = $(wildcard kernel/**/*.asm kernel/**/**/*.asm)
 
-# Now lets create another variable containing all of our object files
-OBJECTS = ${CXX_SOURCES:.cpp=.o} # One for c
-ASMOBJECTS = ${ASM_SOURCES:.asm=.o} # One for ASM
+# Add all assembly and C files to list of OBJ files
+OBJ_FILES = $(patsubst %.c,%.c.o,$(patsubst %.asm,%.asm.o,$(SOURCES)))
 
-# Now lets create a variable for all of the flags to be passed to out
-# c compiler
-CXX_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -I ./ -mno-red-zone -mcmodel=kernel
+# Various flags for command line programs
 
-# Here we declare variables containing the command to access
-# Our compiler and linker
-CXX = x86_64-elf-g++
+# Linker flags
+LD_FLAGS = -z max-page-size=0x1000
+
+# Compiler flags
+C_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -i ./ -mno-red-zone -mcmodel=kernel
+
+# Assembler flags
+ASM_FLAGS = -f elf64
+
+
+# Compiler
+CC = x86_64-elf-gcc
+
+# Linker
 LD = x86_64-elf-ld
-GDB = x86_64-elf-gdb
+
+# Assembler
+ASM = nasm
+
+# Emulator
+EMULATOR = qemu-system-x86_64
 
 
-# A target to build the grub image
+# Rule to build the kernel elf file
+kernel.elf: kernel/boot/global/asm/mboot.asm.o ${OBJ_FILES}
+	${LD} ${LD_FLAGS} -o $@ -Tlink.ld $^
+
+
+# Rule to build the grub iso
 grub: kernel.elf
+	# Move the kernel elf file to the boot folder
 	mv kernel.elf image/boot/kernel.elf
+
+	# Create the iso
 	grub-mkrescue -o image.iso image/
 
-# A target to build the kernel.elf file
-kernel.elf: kernel/asm/boot.o kernel/asm/mboot.o ${ASMOBJECTS} ${OBJECTS} 
-	${LD} -z max-page-size=0x1000 -o $@ -Tlink.ld $^
-
-# Runs the kernel
+# Rule to run the kernel
 run: grub
-	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt
+	${EMULATOR} -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt
 
+# Run kernel in bios mode
 bios: grub
-	qemu-system-x86_64 -hda image.iso -serial file:serial.txt
+	${EMULATOR} -hda image.iso -serial file:serial.txt
 
-bochs: grub
-	bochs -f bochsrc.txt
-
+# Run the kernel in debug
 debug: grub
-	qemu-system-x86_64 -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot
-# ${GDB} -ex "target remote localhost:1234" -ex "symbol-file image/boot/kernel.elf"
+	${EMULATOR} -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot
 
 
-# And here we define some rules for resolving wildcard object files
-# These will go at the bottom of the file
+# Here are rules for resolving object file translations
 
-# First for c files
-%.o: %.cpp ${CXX_HEADERS}
-	${CXX} ${CXX_FLAGS} -c $< -o $@
+# We have two different object file extensions
+# so that we can have conflicting filenames
+# between assembly and C
+# For example: idt.c and idt.asm
+
+# First C object files
+%.c.o: %.c ${C_HEADERS}
+	${CC} ${C_FLAGS} -c $< -o $@
 
 
-# Now for assembly files
-%.o: %.asm
-	nasm $< -f elf64 -o $@
+# Then assembly object files
+%asm.o: %asm
+	${ASM} $< ${ASM_FLAGS} -o $@
 
-# Clean
+
+# The clean rule removes all generated files
 clean:
+	# Compiled kernel
 	rm -rf kernel.elf image/boot/kernel.elf image.iso
+
+	# All object files
 	find . -type f -name '*.o' -delete
