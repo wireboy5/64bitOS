@@ -73,7 +73,7 @@ debug: grub
 
 
 # Then assembly object files
-%asm.o: %asm
+%.asm.o: %.asm
 	${ASM} $< ${ASM_FLAGS} -o $@
 
 
