@@ -13,12 +13,16 @@ align 8 ; Align to 8 bytes
 ; Multiboot 2 magic number
 dd MAGIC
 
+; Architecture
+dd 0x0
 
 ; The header length
 dd HEADER_LENGTH
 
 ; The checksum
 dd -(MAGIC+HEADER_LENGTH)
+
+
 
 ; Now for multiboot tags
 
@@ -28,6 +32,14 @@ dw 3
 dw 1
 dd 12
 dd _start - offset
+
+; We want a 1080x1920x32 framebuffer
+dw 5
+dw 0
+dd 20
+dd 1920
+dd 1028
+dd 32
 
 
 ; End Tag

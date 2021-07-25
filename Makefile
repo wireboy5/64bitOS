@@ -46,6 +46,7 @@ grub: kernel.elf
 	# Create the iso
 	grub-mkrescue -o image.iso image/
 
+
 # Rule to run the kernel
 run: grub
 	${EMULATOR} -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt
