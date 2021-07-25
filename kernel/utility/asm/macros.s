@@ -1,5 +1,8 @@
-; The kernel link offset
-%define offset 0xFFFFFFFF80000000
+; Defines various macros to make code cleander
+
+; Include definitions
+%include "kernel/utility/asm/definitions.s"
 
 ; Removes offset from `a`
 %define no_offset(a) a-offset
+

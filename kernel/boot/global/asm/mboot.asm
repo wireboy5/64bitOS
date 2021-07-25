@@ -28,12 +28,14 @@ dd -(MAGIC+HEADER_LENGTH)
 
 
 ; The kernel entry address
+align 8
 dw 3
 dw 1
 dd 12
-dd _start - offset
+dd no_offset(_start)
 
 ; We want a 1080x1920x32 framebuffer
+align 8
 dw 5
 dw 0
 dd 20
@@ -43,6 +45,7 @@ dd 32
 
 
 ; End Tag
+align 8
 dw 0
 dw 0
 dd 8
