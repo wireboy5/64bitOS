@@ -1,5 +1,5 @@
 #pragma once
-#include <kernel/lib/io/ports.h>
+#include <io/ports.h>
 
 // Initializes serial port
 int init_serial();

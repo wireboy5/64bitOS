@@ -14,7 +14,7 @@ OBJ_FILES = $(patsubst %.c,%.co.o,$(patsubst %.asm,%.o,$(SOURCES)))
 LD_FLAGS = -z max-page-size=0x1000
 
 # Compiler flags
-C_FLAGS = -g -nostartfiles -ffreestanding -Wall -Wextra -fno-exceptions -I ./ -mno-red-zone -mcmodel=kernel
+C_FLAGS = -g -nostartfiles -ffreestanding -Wall -Wextra -fno-exceptions -I ./ -I ./kernel/lib -mno-red-zone -mcmodel=kernel
 
 # Assembler flags
 ASM_FLAGS = -f elf64
