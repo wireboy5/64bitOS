@@ -83,11 +83,11 @@ map_pts:
     ; EDX: offset address
 
 
-    ; Clear all flags
-    and edx, 0xFFF
+    ; Clear all non flags
+    and ebx, 0xFFF
 
     ; Apply flags
-    or edx, 0b11
+    or edx, ebx
 
 .map1:
     ; Move address into the table
@@ -101,7 +101,9 @@ map_pts:
 
     ; Decrement and loop if ecx is larger than zero
     dec ecx
-    jnz .map1
+    cmp ecx, 0
+    jg .map1
+
 
     ret
 
@@ -112,11 +114,11 @@ map_pd:
     ; ECX: number of entries
     ; EDX: location of page tables
 
-    ; Clear all flags
-    and edx, 0xFFF
+    ; Clear all non flags
+    and ebx, 0xFFF
 
     ; Apply flags
-    or edx, 0b11
+    or edx, ebx
 
 .map1:
     ; Move address into the table
