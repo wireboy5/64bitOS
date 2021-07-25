@@ -50,7 +50,7 @@ void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
         
 
         switch (tag->type) {
-            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
+            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: {
                 struct multiboot_tag_framebuffer_common* fb_common = (struct multiboot_tag_framebuffer_common*)tag;
 
                 // Load proper framebuffer tag
@@ -61,6 +61,10 @@ void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
                 } else {
                     serial_print(" - EGA Text");
                 }
+                break;
+            }
+            default:
+                break;
         }
 
         serial_print("\n");
