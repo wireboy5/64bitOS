@@ -16,7 +16,7 @@ initialize_long_mode:
 
     ; Initialize paging
     call initialize_paging
-
+    
     ; Enable lonng mode
     mov ecx, 0xC0000080
     rdmsr
