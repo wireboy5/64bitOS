@@ -1,4 +1,5 @@
 #pragma once
-#include <kernel/lib/io/serial.h>
+#include <io/serial.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <system/sysinfo.h>

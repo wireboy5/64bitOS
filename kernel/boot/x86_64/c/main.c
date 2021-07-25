@@ -9,6 +9,6 @@ extern void kmain(void* multiboot_info) {
     // Print extra newline on serial
     serial_print("\n");
 
-    // Print booting message
-    serial_print("Kernel Loa")
+    // Load system info
+    sysinfo_t info = get_sysinfo(multiboot_info);
 }
