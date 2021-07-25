@@ -15,7 +15,7 @@ extern entry64
 
 ; The start label
 _start:
-    ; We are going to identity map the first 2GB of memory
+    ; We are going to identity map the first 1GB of memory
     ; to 0x0000000000000000 and then also map it to
     ; 0xFFFFFFFF80000000 which is about at the last 2 GB of memory
     
