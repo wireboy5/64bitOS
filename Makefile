@@ -6,7 +6,7 @@ C_HEADERS = $(shell find kernel/ -type f -name '*.h')
 
 
 # Add all assembly and C files to list of OBJ files
-OBJ_FILES = $(patsubst %.c,%.c.o,$(patsubst %.asm,%.asm.o,$(SOURCES)))
+OBJ_FILES = $(patsubst %.c,%.co.o,$(patsubst %.asm,%.o,$(SOURCES)))
 
 # Various flags for command line programs
 
@@ -14,7 +14,7 @@ OBJ_FILES = $(patsubst %.c,%.c.o,$(patsubst %.asm,%.asm.o,$(SOURCES)))
 LD_FLAGS = -z max-page-size=0x1000
 
 # Compiler flags
-C_FLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -i ./ -mno-red-zone -mcmodel=kernel
+C_FLAGS = -g -nostartfiles -ffreestanding -Wall -Wextra -fno-exceptions -I ./ -mno-red-zone -mcmodel=kernel
 
 # Assembler flags
 ASM_FLAGS = -f elf64
@@ -34,7 +34,7 @@ EMULATOR = qemu-system-x86_64
 
 
 # Rule to build the kernel elf file
-kernel.elf: kernel/boot/global/asm/mboot.asm.o ${OBJ_FILES}
+kernel.elf: kernel/boot/global/asm/mboot.o ${OBJ_FILES}
 	${LD} ${LD_FLAGS} -o $@ -Tlink.ld $^
 
 
@@ -68,12 +68,12 @@ debug: grub
 # For example: idt.c and idt.asm
 
 # First C object files
-%.c.o: %.c ${C_HEADERS}
+%.co.o: %.c ${C_HEADERS}
 	${CC} ${C_FLAGS} -c $< -o $@
 
 
 # Then assembly object files
-%.asm.o: %.asm
+%.o: %.asm
 	${ASM} $< ${ASM_FLAGS} -o $@
 
 
