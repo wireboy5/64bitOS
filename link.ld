@@ -49,6 +49,7 @@ SECTIONS
 
 	/* Add a symbol that indicates the end address of the kernel. */
 	_kernel_end = .;
+	_kernel_end_phys = . - kernOffset;
 
   	end = .; _end = .; __end = .;
 

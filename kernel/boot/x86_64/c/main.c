@@ -1,6 +1,6 @@
 #include "main.h"
 
-extern size_t _kernel_end;
+extern size_t _kernel_end_phys;
 
 extern void kmain(void* multiboot_info) {
     
@@ -14,11 +14,13 @@ extern void kmain(void* multiboot_info) {
     sysinfo_t info = get_sysinfo(multiboot_info);
 
     char c[33];
-    itoa(&multiboot_info, c, 16);
+    itoa(info.fb.address >> 32, c, 16);
+    serial_print(c);
+    itoa(info.fb.address, c, 16);
     serial_print(c);
     serial_print("\n");
     
-    itoa(&_kernel_end, c, 16);
+    itoa(&_kernel_end_phys, c, 16);
     serial_print(c);
     serial_print("\n");
 }
