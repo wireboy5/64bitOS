@@ -6,5 +6,6 @@
         "stddef.h": "c",
         "stdint.h": "c",
         "getinfo.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }

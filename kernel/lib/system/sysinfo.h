@@ -15,7 +15,7 @@ typedef struct multiboot_tags_header multiboot_tags_header_t;
 struct sysinfo {
     framebuffer_t fb;
     multiboot_tags_header_t tags_header;
-    size_t mmap;
+    struct multiboot_tag_mmap* mmap;
 };
 typedef struct sysinfo sysinfo_t;
 
