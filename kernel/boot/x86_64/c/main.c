@@ -1,5 +1,6 @@
 #include "main.h"
 
+extern size_t _kernel_end;
 
 extern void kmain(void* multiboot_info) {
     
@@ -12,10 +13,12 @@ extern void kmain(void* multiboot_info) {
     // Load system info
     sysinfo_t info = get_sysinfo(multiboot_info);
 
-    // Test frame buffer
-    for(uint32_t y = 0; y < info.fb.height; y++) {
-        for(uint32_t x = 0; x < info.fb.width; x++) {
-            set_pixel(info, x, y, 0xFFFFFFFF);
-        }
-    }
+    char c[33];
+    itoa(&multiboot_info, c, 16);
+    serial_print(c);
+    serial_print("\n");
+    
+    itoa(&_kernel_end, c, 16);
+    serial_print(c);
+    serial_print("\n");
 }
