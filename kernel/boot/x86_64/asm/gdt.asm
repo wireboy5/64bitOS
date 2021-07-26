@@ -10,6 +10,7 @@ global load_gdt
 ; Simply loads the GDT
 load_gdt:
     lgdt [no_offset(gdt64_ptr)]
+    ret
 
 
 section .rodata ; Read Only Data
