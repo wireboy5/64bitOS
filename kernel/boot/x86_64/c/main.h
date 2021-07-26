@@ -4,3 +4,4 @@
 #include <stddef.h>
 #include <system/sysinfo.h>
 #include <screen/graphics.h>
+#include <string.h>

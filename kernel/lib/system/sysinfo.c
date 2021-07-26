@@ -63,6 +63,13 @@ void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
                 }
                 break;
             }
+            case MULTIBOOT_TAG_TYPE_MMAP: {
+                struct multiboot_tag_mmap* mmap = (struct multiboot_tag_mmap*)tag;
+                serial_print(" - mmap");
+
+                // Load mmap
+                info->mmap = &mmap;
+            }
             default:
                 break;
         }
