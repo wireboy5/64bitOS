@@ -34,13 +34,13 @@ dw 1
 dd 12
 dd no_offset(_start)
 
-; We want a 1080x1920x32 framebuffer
+; We want a 720x1280x32 framebuffer
 align 8
 dw 5
 dw 0
 dd 20
-dd 1920
-dd 1028
+dd 1280
+dd 720
 dd 32
 
 
