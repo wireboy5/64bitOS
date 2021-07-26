@@ -83,6 +83,14 @@ char * itoa( int value, char * str, int base )
         *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + value % base];
         value /= base;
     } while ( value );
+
+    
+
+    // If the length is less than 8, pad with zeroes.
+    for (int i = (int)(ptr - str); i < 8; i++) {
+        *ptr++ = '0';
+    }
+
     // Terminating the string.
     *ptr-- = '\0';
     // Invert the numbers.

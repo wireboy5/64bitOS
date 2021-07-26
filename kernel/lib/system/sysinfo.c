@@ -22,7 +22,7 @@ void parse_framebuffer(sysinfo_t* info, struct multiboot_tag_framebuffer* fb) {
     }
 }
 
-void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
+void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 
     // Grab tags header
     info->tags_header = *(multiboot_tags_header_t*)multiboot_info;
@@ -30,15 +30,17 @@ void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
     // Tag offset address
     serial_print("Searching Multiboot Information Structure...");
 
-    // Iterate through tags
+    
 
     // Initial tag
     struct multiboot_tag* tag;
     
-
+    // Iterate through tags
     for (tag = (struct multiboot_tag*)((size_t)multiboot_info + 8);
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag*)((uint8_t*)tag + ((tag->size + 7) & ~7))) {
+
+        // Print tag info
         char tsize[33];
         char ttype[33];
         itoa(tag->size, tsize, 10);
@@ -48,27 +50,34 @@ void parse_multiboot_info(void* multiboot_info, struct sysinfo* info) {
         serial_print(" type: ");
         serial_print(ttype);
         
-
+        // Switch on tag type
         switch (tag->type) {
-            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: {
+            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: { // Framebuffer
+                // Create a framebuffer pointer to the tag
                 struct multiboot_tag_framebuffer_common* fb_common = (struct multiboot_tag_framebuffer_common*)tag;
 
                 // Load proper framebuffer tag
                 if(fb_common->framebuffer_type != 2) {
+                    // If RGB or indexed, then use it as a framebuffer
                     serial_print(" - framebuffer");
                     struct multiboot_tag_framebuffer* fb = (struct multiboot_tag_framebuffer*)tag;
                     parse_framebuffer(info, fb);
                 } else {
+                    // TODO: Implement EGA
                     serial_print(" - EGA Text");
                 }
                 break;
             }
-            case MULTIBOOT_TAG_TYPE_MMAP: {
+            case MULTIBOOT_TAG_TYPE_MMAP: { // Memory Map
+                // Cast to memory map tag
                 struct multiboot_tag_mmap* mmap = (struct multiboot_tag_mmap*)tag;
+
+                // Print that this is a MMAP
                 serial_print(" - mmap");
 
-                // Load mmap
-                info->mmap = &mmap;
+
+                // Load mmap address into system info
+                info->mmap = mmap;
             }
             default:
                 break;
