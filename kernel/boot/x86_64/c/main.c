@@ -21,8 +21,7 @@ extern void kmain(void* multiboot_info) {
     for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info.mmap + sizeof(struct multiboot_tag_mmap));
         (uintptr_t)entry - (uintptr_t)info.mmap < info.mmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info.mmap->entry_size)) {
         char c[33];
-        itoa((uintptr_t)entry, c, 16);
-        serial_print(c);
+        
 
         serial_print("MMAP Entry: ");
 
