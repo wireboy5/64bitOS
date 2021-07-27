@@ -29,7 +29,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
     info->tags_header = *(multiboot_tags_header_t*)multiboot_info;
 
     // Tag offset address
-    serial_print("Searching Multiboot Information Structure...");
+    serial_print("Searching Multiboot Information Structure...\n");
 
     
 
@@ -69,9 +69,9 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 }
 
                 // Load the framebuffer into the memory map
-                memory_map.entries[memory_map.index] = create_mmap_entry(fb_common->framebuffer_addr,
-                    fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b00010000);
-                memory_map.index++;
+                info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
+                    fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b10000000);
+                info->memmap->index++;
                 break;
             }
             case MULTIBOOT_TAG_TYPE_MMAP: { // Memory Map
@@ -84,6 +84,21 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 
                 // Load mmap address into system info
                 info->grub_memmap = mmap;
+                break;
+            }
+            case MULTIBOOT_TAG_TYPE_MODULE: { // Module
+                // Cast to module tag
+                struct multiboot_tag_module* module = (struct multiboot_tag_module*)tag;
+
+                // Print that this is a module
+                serial_print(" - module");
+                serial_print(" - ");
+                serial_print(module->cmdline);
+
+                // Add module to memory map
+                info->memmap->entries[info->memmap->index] = create_mmap_entry(module->mod_start, module->mod_end - module->mod_start, 0b00100000);
+                info->memmap->index++;
+                break;
             }
             default:
                 break;
@@ -97,12 +112,47 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     sysinfo_t sysinfo;
 
     // Generate a new memmap
-    sysinfo.memmap_addr = (void*)generate_memmap(multiboot_info, &sysinfo);
+    sysinfo.memmap = (void*)generate_memmap(multiboot_info, &sysinfo);
 
     // Parse multiboot info
     parse_multiboot_info(multiboot_info, &sysinfo);
 
-    
+    // Print memory map
+    for(uint32_t i = 0; i < sysinfo.memmap->index; i++) {
+        memmap_entry_t entry = sysinfo.memmap->entries[i];
+        serial_print("OS MM Entry: ");
+        char c[33];
+        itoa(entry.start, c, 16);
+        serial_print(c);
+        serial_print(" - ");
+        itoa(entry.start + entry.size, c, 16);
+        serial_print(c);
+        serial_print("(");
+        itoa(entry.size, c, 16);
+        serial_print(c);
+        serial_print(")");
+
+        if (entry.flags == 0b10000000) {
+            serial_print(" - Framebuffer");
+        } else if (entry.flags == 0b01000000) {
+            serial_print(" - GRUB");
+        } else if (entry.flags == 0b00100000) {
+            serial_print(" - Module");
+        } else if (entry.flags == 0b00010000) {
+            serial_print(" - Kernel");
+        } else if (entry.flags == 0b00001000) {
+            serial_print(" - Bad Ram");
+        } else if (entry.flags == 0b00000100) {
+            serial_print(" - ACPI NVS");
+        } else if (entry.flags == 0b00000010) {
+            serial_print(" - ACPI Reclaimable");
+        } else if (entry.flags == 0b00000001) {
+            serial_print(" - Reserved");
+        } else {
+            serial_print(" - Unknown/Available");
+        }
+        serial_print("\n");
+    }
 
     return sysinfo;
 }

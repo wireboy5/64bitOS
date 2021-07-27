@@ -5,7 +5,8 @@
         "io.h": "c",
         "stddef.h": "c",
         "stdint.h": "c",
-        "getinfo.h": "c"
+        "getinfo.h": "c",
+        "memmap.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
