@@ -18,8 +18,8 @@ extern void kmain(void* multiboot_info) {
     
     
     
-    for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info.mmap + sizeof(struct multiboot_tag_mmap));
-        (uintptr_t)entry - (uintptr_t)info.mmap < info.mmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info.mmap->entry_size)) {
+    for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info.grub_memmap + sizeof(struct multiboot_tag_mmap));
+        (uintptr_t)entry - (uintptr_t)info.grub_memmap < info.grub_memmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info.grub_memmap->entry_size)) {
         char c[33];
         
 

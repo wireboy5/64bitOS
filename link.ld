@@ -15,6 +15,7 @@ SECTIONS
 	. += kernOffset;
 	/* Add a symbol that indicates the start address of the kernel. */
 	_kernel_start = .;
+	_kernel_start_phys = . - kernOffset;
   	/*kernOffset = 0xC0000000;*/
 	
 	

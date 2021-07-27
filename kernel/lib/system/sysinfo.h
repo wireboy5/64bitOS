@@ -15,7 +15,8 @@ typedef struct multiboot_tags_header multiboot_tags_header_t;
 struct sysinfo {
     framebuffer_t fb;
     multiboot_tags_header_t tags_header;
-    struct multiboot_tag_mmap* mmap;
+    struct multiboot_tag_mmap* grub_memmap;
+    void* memmap_addr;
 };
 typedef struct sysinfo sysinfo_t;
 

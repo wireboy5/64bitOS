@@ -1,4 +1,5 @@
 #include "sysinfo.h"
+#include <system/memmap.h>
 
 void parse_framebuffer(sysinfo_t* info, struct multiboot_tag_framebuffer* fb) {
     info->fb.address = fb->common.framebuffer_addr;
@@ -66,6 +67,11 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                     // TODO: Implement EGA
                     serial_print(" - EGA Text");
                 }
+
+                // Load the framebuffer into the memory map
+                memory_map.entries[memory_map.index] = create_mmap_entry(fb_common->framebuffer_addr,
+                    fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b00010000);
+                memory_map.index++;
                 break;
             }
             case MULTIBOOT_TAG_TYPE_MMAP: { // Memory Map
@@ -77,7 +83,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 
 
                 // Load mmap address into system info
-                info->mmap = mmap;
+                info->grub_memmap = mmap;
             }
             default:
                 break;
@@ -90,27 +96,13 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 sysinfo_t get_sysinfo(void* multiboot_info) {
     sysinfo_t sysinfo;
 
+    // Generate a new memmap
+    sysinfo.memmap_addr = (void*)generate_memmap(multiboot_info, &sysinfo);
+
     // Parse multiboot info
     parse_multiboot_info(multiboot_info, &sysinfo);
 
-    // Now we need to create a list of all data and structures that we are using in the kernel.
-    // kernel_start and kernel_end will be useful for this.
-    // We will then add all grub modules to this list.
-    // And everything that grub lists in the memory map.
-    // We will not be reclaiming ACPi memory yet.
-    // This list will be stored in a list located at the lowest 
-    // address that the memory map tells us is available.
-    // The list will be able to hold 4096 entries, or the size of the lowest memory area. Whichever is smallest.
-    // Every entry will be ordered according to physical address.
-    // The structure will consist of two 64 bit integers, the physical address and the size of the memory.
-    // There will also be an 8 bit integer, which will contain flags describing the areas:
-    // bit 0: if set, then this is a reserved area
-    // bit 1: if set, then this is an ACPI reclaimable area
-    // bit 2: if set, then this is an ACPI NVS area
-    // bit 3: if set, then this is a bad ram area
-    // bit 4: if set, then this is an area reserved for the kernel
-    // bit 5: if set, then this is an area reserved for the modules
-    // If none of the above are set, then this is an available area.
+    
 
     return sysinfo;
 }
