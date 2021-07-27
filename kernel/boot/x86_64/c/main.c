@@ -57,4 +57,7 @@ extern void kmain(void* multiboot_info) {
                 serial_print(" - Unknown\n");
         }
     }
+
+    
+
 }
