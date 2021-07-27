@@ -93,5 +93,24 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     // Parse multiboot info
     parse_multiboot_info(multiboot_info, &sysinfo);
 
+    // Now we need to create a list of all data and structures that we are using in the kernel.
+    // kernel_start and kernel_end will be useful for this.
+    // We will then add all grub modules to this list.
+    // And everything that grub lists in the memory map.
+    // We will not be reclaiming ACPi memory yet.
+    // This list will be stored in a list located at the lowest 
+    // address that the memory map tells us is available.
+    // The list will be able to hold 4096 entries, or the size of the lowest memory area. Whichever is smallest.
+    // Every entry will be ordered according to physical address.
+    // The structure will consist of two 64 bit integers, the physical address and the size of the memory.
+    // There will also be an 8 bit integer, which will contain flags describing the areas:
+    // bit 0: if set, then this is a reserved area
+    // bit 1: if set, then this is an ACPI reclaimable area
+    // bit 2: if set, then this is an ACPI NVS area
+    // bit 3: if set, then this is a bad ram area
+    // bit 4: if set, then this is an area reserved for the kernel
+    // bit 5: if set, then this is an area reserved for the modules
+    // If none of the above are set, then this is an available area.
+
     return sysinfo;
 }
