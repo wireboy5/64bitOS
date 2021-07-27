@@ -4,7 +4,7 @@
 extern char _kernel_end_phys;
 extern char _kernel_start_phys;
 
-
+memory_map_t memory_map;
 
 memmap_entry_t create_mmap_entry(uint64_t start, uint64_t size, uint64_t flags) {
     memmap_entry_t entry;
@@ -33,14 +33,15 @@ memory_map_t* generate_memmap(void* multiboot_info, sysinfo_t* sysinfo) {
     // bit 4: if set, then this is an area reserved for the kernel
     // bit 5: if set, then this is an area reserved for the modules
     // bit 6: if set, then this is an area reserved for GRUB
+    // bit 7: if set, then this area is memory mapped IO or a framebuffer.
     // If none of the above are set, then this is an available area.
 
     // First allocate a block for the kernel
-    memory_map.entries[memory_map.index] = create_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, 0b00100000);
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, 0b00010000);
     memory_map.index++;
 
     // Now allocate a block for the multiboot info
-    memory_map.entries[memory_map.index] = create_entry((uint64_t)multiboot_info, (uint32_t)(multiboot_info), 0b01000000); 
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint32_t)(multiboot_info), 0b01000000); 
     memory_map.index++;
 
     // Now we return the address of the memory map for the GRUB parser to insert into.
