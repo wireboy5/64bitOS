@@ -70,7 +70,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 
                 // Load the framebuffer into the memory map
                 info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
-                    fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b10000000);
+                    fb_common->framebuffer_addr + fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b10000000);
                 info->memmap->index++;
                 break;
             }
@@ -79,11 +79,67 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 struct multiboot_tag_mmap* mmap = (struct multiboot_tag_mmap*)tag;
 
                 // Print that this is a MMAP
-                serial_print(" - mmap");
+                serial_print(" - mmap\n");
 
 
                 // Load mmap address into system info
                 info->grub_memmap = mmap;
+
+                for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info->grub_memmap + sizeof(struct multiboot_tag_mmap));
+                    (uintptr_t)entry - (uintptr_t)info->grub_memmap < info->grub_memmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info->grub_memmap->entry_size)) {
+                    char c[33];
+
+
+                    serial_print("MMAP Entry: ");
+
+                    itoa(entry->addr >> 32, c, 16);
+                    serial_print(c);
+                    itoa(entry->addr, c, 16);
+                    serial_print(c);
+                    serial_print(" - ");
+                    uint64_t end_addr = entry->addr + entry->len;
+                    itoa(end_addr >> 32, c, 16);
+                    serial_print(c);
+                    itoa(end_addr, c, 16);
+                    serial_print(c);
+
+                    uint8_t flags;
+
+                    // Switch on type
+                    switch (entry->type) {
+                        case MULTIBOOT_MEMORY_AVAILABLE:
+                            serial_print(" - Available\n");
+                            flags = 0b00000000;
+                            break;
+                        case MULTIBOOT_MEMORY_RESERVED:
+                            serial_print(" - Reserved\n");
+                            flags = 0b00000001;
+                            break;
+                        case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:
+                            serial_print(" - ACPI reclaimable\n");
+                            flags = 0b00000010;
+                            break;
+                        case MULTIBOOT_MEMORY_NVS:
+                            serial_print(" - ACPI NVS\n");
+                            flags = 0b00000100;
+                            break;
+                        case MULTIBOOT_MEMORY_BADRAM:
+                            serial_print(" - Bad ram\n");
+                            flags = 0b00001000;
+                            break;
+                        default:
+                            serial_print(" - Unknown\n");
+                            flags = 0b00000000; // Default to available
+                    }
+
+                    // Add to memmap
+                    info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
+                    info->memmap->index++;
+                    
+
+                    
+                }
+
                 break;
             }
             case MULTIBOOT_TAG_TYPE_MODULE: { // Module
@@ -122,15 +178,27 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
         memmap_entry_t entry = sysinfo.memmap->entries[i];
         serial_print("OS MM Entry: ");
         char c[33];
+
+        itoa(entry.start >> 32, c, 16);
+        serial_print(c);
         itoa(entry.start, c, 16);
         serial_print(c);
         serial_print(" - ");
-        itoa(entry.start + entry.size, c, 16);
+        uint64_t end_addr = entry.start + entry.size;
+        itoa(end_addr >> 32, c, 16);
         serial_print(c);
+        itoa(end_addr, c, 16);
+        serial_print(c);
+
         serial_print("(");
+        itoa(entry.size >> 32, c, 16);
+        serial_print(c);
         itoa(entry.size, c, 16);
         serial_print(c);
         serial_print(")");
+
+        
+        
 
         if (entry.flags == 0b10000000) {
             serial_print(" - Framebuffer");
