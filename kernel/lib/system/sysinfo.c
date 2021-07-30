@@ -73,12 +73,6 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 
                 info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
                     fb_size, 0b10000000);
-                
-                uint64_t sz = info->memmap->entries[info->memmap->index].size;
-                char c[33];
-                itoa(fb_common->framebuffer_addr + sz, c, 16);
-                serial_print(" - ");
-                serial_print(c);
                 info->memmap->index++;
                 break;
             }
