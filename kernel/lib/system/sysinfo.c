@@ -135,8 +135,8 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                     }
 
                     // Add to memmap
-                    //info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
-                    //info->memmap->index++;
+                    info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
+                    info->memmap->index++;
                     
 
                     
