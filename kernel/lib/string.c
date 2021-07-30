@@ -57,7 +57,7 @@ char* reverse(char *buffer, int i, int j)
 	return buffer;
 }
 
-char * itoa( int value, char * str, int base )
+char * itoa( uint64_t value, char * str, int base )
 {
     char * rc;
     char * ptr;
@@ -86,10 +86,7 @@ char * itoa( int value, char * str, int base )
 
     
 
-    // If the length is less than 8, pad with zeroes.
-    for (int i = (int)(ptr - str); i < 8; i++) {
-        *ptr++ = '0';
-    }
+    
 
     // Terminating the string.
     *ptr-- = '\0';
