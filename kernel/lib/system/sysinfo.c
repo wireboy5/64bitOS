@@ -87,21 +87,19 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 // Load mmap address into system info
                 info->grub_memmap = mmap;
 
+                uint64_t index = info->memmap->index;
+
                 for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info->grub_memmap + sizeof(struct multiboot_tag_mmap));
                     (uintptr_t)entry - (uintptr_t)info->grub_memmap < info->grub_memmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info->grub_memmap->entry_size)) {
                     char c[33];
 
 
                     serial_print("MMAP Entry: ");
-
-                    itoa(entry->addr >> 32, c, 16);
-                    serial_print(c);
                     itoa(entry->addr, c, 16);
                     serial_print(c);
                     serial_print(" - ");
                     uint64_t end_addr = entry->addr + entry->len;
-                    itoa(end_addr >> 32, c, 16);
-                    serial_print(c);
+
                     itoa(end_addr, c, 16);
                     serial_print(c);
 
@@ -134,9 +132,50 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                             flags = 0b00000000; // Default to available
                     }
 
-                    // Add to memmap
-                    info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
-                    info->memmap->index++;
+                    // Get the end of the new entry
+                    uint64_t new_end = entry->addr + entry->len;
+                    bool overlaps = false;
+                    if(flags == 0){
+                        // If available Check if it overlaps with an existing entry
+                        for(uint64_t i = 0; i < index; i++) {
+                            // Get the end of the current entry
+                            uint64_t end = info->memmap->entries[i].start + info->memmap->entries[i].size;
+                            memmap_entry_t mentry = info->memmap->entries[i];
+                            if(mentry.start > entry->addr){
+                                if(end < new_end) {
+                                    // Overlapping
+                                    overlaps = true;
+
+                                    // Create entry for beginning of overlap
+                                    memmap_entry_t begin = create_mmap_entry(entry->addr, mentry.start - entry->addr, flags);
+
+                                    // Create entry for end of overlap
+                                    memmap_entry_t end_entry = create_mmap_entry(end, new_end - end, flags);
+
+                                    // Add each entry only if length is more than zero
+                                    if(begin.size > 0) {
+                                        info->memmap->entries[info->memmap->index] = begin;
+                                        info->memmap->index++;
+                                    }
+                                    if(end_entry.size > 0) {
+                                        info->memmap->entries[info->memmap->index] = end_entry;
+                                        info->memmap->index++;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!overlaps) {
+                        // Add the entry
+                        info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr,
+                            entry->len, flags);
+                        info->memmap->index++;
+                    }
+                    
+
+                    
                     
 
                     
@@ -158,6 +197,14 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 info->memmap->index++;
                 break;
             }
+            case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO: { // Basic memory info
+                // Cast to basic memory info tag
+                struct multiboot_tag_basic_meminfo* meminfo = (struct multiboot_tag_basic_meminfo*)tag;
+                serial_print(" - basic memory info");
+                char c[33];
+                itoa(meminfo->mem_lower + meminfo->mem_upper, c, 16);
+                serial_print(c);
+            }
             default:
                 break;
         }
@@ -175,6 +222,10 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     // Parse multiboot info
     parse_multiboot_info(multiboot_info, &sysinfo);
 
+    // Re-sort the memory map
+    sort_memmap(sysinfo.memmap);
+
+    uint64_t sum = 0;
     // Print memory map
     for(uint32_t i = 0; i < sysinfo.memmap->index; i++) {
         memmap_entry_t entry = sysinfo.memmap->entries[i];
@@ -189,11 +240,11 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
         itoa(end_addr, c, 16);
         serial_print(c);
 
-        serial_print("(");
+        serial_print("(Size: ");
         itoa(entry.size, c, 16);
         serial_print(c);
-        serial_print(")");
-
+        serial_print(" )");
+        sum += entry.size;
         
         
 
@@ -218,6 +269,15 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
         }
         serial_print("\n");
     }
+
+    // Get last tag end address
+    uint64_t last_tag_end = sysinfo.memmap->entries[sysinfo.memmap->index - 1].start + sysinfo.memmap->entries[sysinfo.memmap->index - 1].size;
+
+    char c[33];
+    itoa(last_tag_end, c, 16);
+    serial_print("Total memory: ");
+    serial_print(c);
+    serial_print("\n");
 
     return sysinfo;
 }

@@ -14,7 +14,7 @@ extern void kmain(void* multiboot_info) {
     sysinfo_t info = get_sysinfo(multiboot_info);
 
     // Print memory map
-
+    
     
     
     
