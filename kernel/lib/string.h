@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h>
+#include <stdint.h>
 
 int memcmp(const void* aptr, const void* bptr, size_t size) ;
 void* memcpy(void* __restrict dstptr, const void* __restrict srcptr, size_t size) ;
@@ -11,4 +12,4 @@ void strappend(char s[], char n);
 void strbackspace(char s[]);
 size_t strlen(char s[]);
 size_t strcmp(char s1[], char s2[]);
-char* itoa(int value, char* buffer, int base);
+char* itoa(uint64_t value, char* buffer, int base);
