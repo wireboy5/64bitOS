@@ -181,21 +181,15 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
         serial_print("OS MM Entry: ");
         char c[33];
 
-        itoa(entry.start >> 32, c, 16);
-        serial_print(c);
-        itoa(entry.start & 0xFFFFFFFF, c, 16);
+        itoa(entry.start, c, 16);
         serial_print(c);
         serial_print(" - ");
         uint64_t end_addr = (uint64_t)entry.start + (uint64_t)entry.size;
         
-        itoa(end_addr >> 32, c, 16);
-        serial_print(c);
-        itoa(end_addr & 0xFFFFFFFF, c, 16);
+        itoa(end_addr, c, 16);
         serial_print(c);
 
         serial_print("(");
-        itoa(entry.size >> 32, c, 16);
-        serial_print(c);
         itoa(entry.size, c, 16);
         serial_print(c);
         serial_print(")");
