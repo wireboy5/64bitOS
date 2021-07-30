@@ -32,6 +32,19 @@ struct sysinfo {
     multiboot_tags_header_t tags_header;
     struct multiboot_tag_mmap* grub_memmap;
     memory_map_t* memmap;
+
+    uint64_t mem_lower;
+    uint64_t mem_upper;
+
+    char* cmdline;
+    char* boot_loader_name;
+
+    uint64_t efi64;
+
+    struct multiboot_tag_old_acpi* RSDPv1;
+    struct multiboot_tag_new_acpi* RSDPv2;
+
+    struct multiboot_tag_efi_mmap* efi_memmap;
 };
 typedef struct sysinfo sysinfo_t;
 
