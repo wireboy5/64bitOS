@@ -69,8 +69,16 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 }
 
                 // Load the framebuffer into the memory map
+                uint64_t fb_size = fb_common->framebuffer_pitch * fb_common->framebuffer_height;
+                
                 info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
-                    fb_common->framebuffer_addr + fb_common->framebuffer_pitch * fb_common->framebuffer_height, 0b10000000);
+                    fb_size, 0b10000000);
+                
+                uint64_t sz = info->memmap->entries[info->memmap->index].size;
+                char c[33];
+                itoa(fb_common->framebuffer_addr + sz, c, 16);
+                serial_print(" - ");
+                serial_print(c);
                 info->memmap->index++;
                 break;
             }
@@ -133,8 +141,8 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                     }
 
                     // Add to memmap
-                    info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
-                    info->memmap->index++;
+                    //info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr, entry->len, flags);
+                    //info->memmap->index++;
                     
 
                     
@@ -181,13 +189,14 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
 
         itoa(entry.start >> 32, c, 16);
         serial_print(c);
-        itoa(entry.start, c, 16);
+        itoa(entry.start & 0xFFFFFFFF, c, 16);
         serial_print(c);
         serial_print(" - ");
-        uint64_t end_addr = entry.start + entry.size;
+        uint64_t end_addr = (uint64_t)entry.start + (uint64_t)entry.size;
+        
         itoa(end_addr >> 32, c, 16);
         serial_print(c);
-        itoa(end_addr, c, 16);
+        itoa(end_addr & 0xFFFFFFFF, c, 16);
         serial_print(c);
 
         serial_print("(");
