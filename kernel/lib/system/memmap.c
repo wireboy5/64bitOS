@@ -41,10 +41,27 @@ memory_map_t* generate_memmap(void* multiboot_info, sysinfo_t* sysinfo) {
     memory_map.index++;
 
     // Now allocate a block for the multiboot info
-    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint32_t)(multiboot_info), 0b01000000); 
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint64_t)(multiboot_info), 0b01000000); 
     memory_map.index++;
 
     // Now we return the address of the memory map for the GRUB parser to insert into.
     return &memory_map;
 
+}
+
+void sort_memmap(memory_map_t* mmap) {
+    // Sorts the memory map by physical address.
+
+    bool sorted = true;
+    while(sorted) {
+        sorted = false;
+        for(int i = 0; i < mmap->index - 1; i++) {
+            if(mmap->entries[i].start > mmap->entries[i+1].start) {
+                memmap_entry_t temp = mmap->entries[i];
+                mmap->entries[i] = mmap->entries[i+1];
+                mmap->entries[i+1] = temp;
+                sorted = true;
+            }
+        }
+    }
 }

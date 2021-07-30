@@ -69,11 +69,7 @@ char * itoa( uint64_t value, char * str, int base )
         return str;
     }
     rc = ptr = str;
-    // Set '-' for negative decimals.
-    if ( value < 0 && base == 10 )
-    {
-        *ptr++ = '-';
-    }
+    
     // Remember where the numbers start.
     low = ptr;
     // The actual conversion.
@@ -85,7 +81,12 @@ char * itoa( uint64_t value, char * str, int base )
     } while ( value );
 
     
-
+    if (base == 16) {
+        // Pad with zeroes
+        while (ptr - low < 16) {
+            *ptr++ = '0';
+        }
+    }
     
 
     // Terminating the string.
