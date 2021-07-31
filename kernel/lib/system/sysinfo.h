@@ -18,6 +18,9 @@ struct page_allocator_info {
 
     // The calculated bitmap size
     uint64_t bitmap_size;
+
+    // The bitmap address
+    uint64_t bitmap_addr;
 };
 typedef struct page_allocator_info page_allocator_info_t;
 

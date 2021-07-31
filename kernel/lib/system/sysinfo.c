@@ -336,6 +336,9 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     // Calculate the ammount of memory that is required for the bitmap.
     uint64_t bitmap_size = (num_pages / 8); // Only counts to the last full page.
 
+    // Round up to next multiple of 8
+    bitmap_size = (bitmap_size + 7) & ~0x7;
+
     // Pack into structure
     page_allocator_info_t alloc_info;
     alloc_info.page_to = page_to;

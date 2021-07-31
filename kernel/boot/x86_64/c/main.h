@@ -7,3 +7,6 @@
 #include <system/pfa.h>
 #include <screen/graphics.h>
 #include <string.h>
+
+
+sysinfo_t system_info;

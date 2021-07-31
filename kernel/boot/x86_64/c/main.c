@@ -11,20 +11,20 @@ extern void kmain(void* multiboot_info) {
     serial_print("\n");
 
     // Load system info
-    sysinfo_t info = get_sysinfo(multiboot_info);
+    system_info = get_sysinfo(multiboot_info);
 
     // Initialize the page frame allocator
-    init_pfa(info);
+    init_pfa(&system_info);
 
     // Sort the memory map again
-    sort_memmap(info.memmap);
+    sort_memmap(system_info.memmap);
     
     
     
 
      // Print memory map
-    for(uint32_t i = 0; i < info.memmap->index; i++) {
-        memmap_entry_t entry = info.memmap->entries[i];
+    for(uint32_t i = 0; i < system_info.memmap->index; i++) {
+        memmap_entry_t entry = system_info.memmap->entries[i];
         serial_print("OS MM Entry: ");
         char c[33];
 
