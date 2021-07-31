@@ -13,9 +13,59 @@ extern void kmain(void* multiboot_info) {
     // Load system info
     sysinfo_t info = get_sysinfo(multiboot_info);
 
-    // Print memory map
+    // Initialize the page frame allocator
+    init_pfa(info);
+
+    // Sort the memory map again
+    sort_memmap(info.memmap);
     
     
+    
+
+     // Print memory map
+    for(uint32_t i = 0; i < info.memmap->index; i++) {
+        memmap_entry_t entry = info.memmap->entries[i];
+        serial_print("OS MM Entry: ");
+        char c[33];
+
+        itoa(entry.start, c, 16);
+        serial_print(c);
+        serial_print(" - ");
+        uint64_t end_addr = (uint64_t)entry.start + (uint64_t)entry.size;
+        
+        itoa(end_addr, c, 16);
+        serial_print(c);
+
+        serial_print(" ( Size: ");
+        itoa(entry.size, c, 16);
+        serial_print(c);
+        serial_print(" )");
+        
+        if (entry.flags == MEMMAP_ENTRY_AVAILABLE) {
+            serial_print(" - Available");
+        } else if (entry.flags == MEMMAP_ENTRY_RESERVED) {
+            serial_print(" - Reserved");
+        } else if (entry.flags == MEMMAP_ENTRY_MULTIBOOT_INFO) {
+            serial_print(" - Multiboot Info");
+        } else if (entry.flags == MEMMAP_ENTRY_MODULE) {
+            serial_print(" - Module");
+        } else if (entry.flags == MEMMAP_ENTRY_KERNEL) {
+            serial_print(" - Kernel");
+        } else if (entry.flags == MEMMAP_ENTRY_BAD_RAM) {
+            serial_print(" - Bad Ram");
+        } else if (entry.flags == MEMMAP_ENTRY_ACPI_NVS) {
+            serial_print(" - ACPI NVS");
+        } else if (entry.flags == MEMMAP_ENTRY_ACPI_RECLAIMABLE) {
+            serial_print(" - ACPI Reclaimable");
+        } else if (entry.flags == MEMMAP_ENTRY_FRAMEBUFFER) {
+            serial_print(" - Framebuffer");
+        } else if (entry.flags == MEMMAP_ENTRY_PFA_BITMAP) {
+            serial_print(" - PFA Bitmap");
+        } else {
+            serial_print(" - Unknown");
+        }
+        serial_print("\n");
+    }
     
     
     

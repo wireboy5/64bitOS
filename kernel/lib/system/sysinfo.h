@@ -1,11 +1,25 @@
 #pragma once
 #include <screen/screen.h>
+#include <system/macros.h>
 #include <io/serial.h>
 #include <multiboot2.h>
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+
+
+struct page_allocator_info {
+    // The last address that needs to be paged in.
+    uint64_t page_to;
+
+    // The number of pages to that address
+    uint64_t num_pages;
+
+    // The calculated bitmap size
+    uint64_t bitmap_size;
+};
+typedef struct page_allocator_info page_allocator_info_t;
 
 
 struct memmap_entry {
@@ -27,6 +41,8 @@ struct multiboot_tags_header {
 };
 typedef struct multiboot_tags_header multiboot_tags_header_t;
 
+
+
 struct sysinfo {
     framebuffer_t fb;
     multiboot_tags_header_t tags_header;
@@ -45,6 +61,8 @@ struct sysinfo {
     struct multiboot_tag_new_acpi* RSDPv2;
 
     struct multiboot_tag_efi_mmap* efi_memmap;
+
+    page_allocator_info_t page_allocator_info;
 };
 typedef struct sysinfo sysinfo_t;
 

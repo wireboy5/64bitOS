@@ -72,7 +72,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 uint64_t fb_size = fb_common->framebuffer_pitch * fb_common->framebuffer_height;
                 
                 info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
-                    fb_size, 0b10000000);
+                    fb_size, 8);
                 info->memmap->index++;
                 break;
             }
@@ -110,27 +110,27 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                     switch (entry->type) {
                         case MULTIBOOT_MEMORY_AVAILABLE:
                             //serial_print(" - Available\n");
-                            flags = 0b00000000;
+                            flags = 0;
                             break;
                         case MULTIBOOT_MEMORY_RESERVED:
                             //serial_print(" - Reserved\n");
-                            flags = 0b00000001;
+                            flags = 1;
                             break;
                         case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:
                             //serial_print(" - ACPI reclaimable\n");
-                            flags = 0b00000010;
+                            flags = 7;
                             break;
                         case MULTIBOOT_MEMORY_NVS:
                             //serial_print(" - ACPI NVS\n");
-                            flags = 0b00000100;
+                            flags = 6;
                             break;
                         case MULTIBOOT_MEMORY_BADRAM:
                             //serial_print(" - Bad ram\n");
-                            flags = 0b00001000;
+                            flags = 5;
                             break;
                         default:
                             //serial_print(" - Unknown\n");
-                            flags = 0b00000000; // Default to available
+                            flags = 0; // Default to available
                     }
 
                     // Get the end of the new entry
@@ -194,7 +194,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 serial_print(module->cmdline);
 
                 // Add module to memory map
-                info->memmap->entries[info->memmap->index] = create_mmap_entry(module->mod_start, module->mod_end - module->mod_start, 0b00100000);
+                info->memmap->entries[info->memmap->index] = create_mmap_entry(module->mod_start, module->mod_end - module->mod_start, 3);
                 info->memmap->index++;
                 break;
             }
@@ -323,61 +323,35 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     parse_multiboot_info(multiboot_info, &sysinfo);
 
     // Re-sort the memory map
-    sort_memmap(sysinfo.memmap);
+    uint64_t page_to = sort_memmap(sysinfo.memmap);
 
-    uint64_t sum = 0;
-    // Print memory map
-    for(uint32_t i = 0; i < sysinfo.memmap->index; i++) {
-        memmap_entry_t entry = sysinfo.memmap->entries[i];
-        serial_print("OS MM Entry: ");
-        char c[33];
+    // Now that the memory map is sorted, we need to combine parallel available segments
+    condense_memmap(sysinfo.memmap);
 
-        itoa(entry.start, c, 16);
-        serial_print(c);
-        serial_print(" - ");
-        uint64_t end_addr = (uint64_t)entry.start + (uint64_t)entry.size;
-        
-        itoa(end_addr, c, 16);
-        serial_print(c);
+    // Generate info for page frame alocator
 
-        serial_print(" ( Size: ");
-        itoa(entry.size, c, 16);
-        serial_print(c);
-        serial_print(" )");
-        sum += entry.size;
-        
-        
+    // Calculate number of pages
+    uint64_t num_pages = (page_to & ~0xFFFULL) / 0x1000;
 
-        if (entry.flags == 0b10000000) {
-            serial_print(" - Framebuffer");
-        } else if (entry.flags == 0b01000000) {
-            serial_print(" - GRUB");
-        } else if (entry.flags == 0b00100000) {
-            serial_print(" - Module");
-        } else if (entry.flags == 0b00010000) {
-            serial_print(" - Kernel");
-        } else if (entry.flags == 0b00001000) {
-            serial_print(" - Bad Ram");
-        } else if (entry.flags == 0b00000100) {
-            serial_print(" - ACPI NVS");
-        } else if (entry.flags == 0b00000010) {
-            serial_print(" - ACPI Reclaimable");
-        } else if (entry.flags == 0b00000001) {
-            serial_print(" - Reserved");
-        } else {
-            serial_print(" - Unknown/Available");
-        }
-        serial_print("\n");
-    }
+    // Calculate the ammount of memory that is required for the bitmap.
+    uint64_t bitmap_size = (num_pages / 8); // Only counts to the last full page.
 
-    // Get last tag end address
-    uint64_t last_tag_end = sysinfo.memmap->entries[sysinfo.memmap->index - 1].start + sysinfo.memmap->entries[sysinfo.memmap->index - 1].size;
+    // Pack into structure
+    page_allocator_info_t alloc_info;
+    alloc_info.page_to = page_to;
+    alloc_info.num_pages = num_pages;
+    alloc_info.bitmap_size = bitmap_size;
 
-    char c[33];
-    itoa(last_tag_end, c, 16);
-    serial_print("Total memory: ");
-    serial_print(c);
-    serial_print("\n");
+    // Save to sysinfo
+    sysinfo.page_allocator_info = alloc_info;
+
+    
+   
+
+    
+    
+
+
 
     return sysinfo;
 }
