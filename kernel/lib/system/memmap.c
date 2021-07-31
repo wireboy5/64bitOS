@@ -37,11 +37,11 @@ memory_map_t* generate_memmap(void* multiboot_info, sysinfo_t* sysinfo) {
     // If none of the above are set, then this is an available area.
 
     // First allocate a block for the kernel
-    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, 0b00010000);
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, 5);
     memory_map.index++;
 
     // Now allocate a block for the multiboot info
-    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint64_t)(multiboot_info), 0b01000000); 
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint64_t)(multiboot_info), 3); 
     memory_map.index++;
 
     // Now we return the address of the memory map for the GRUB parser to insert into.
@@ -49,8 +49,10 @@ memory_map_t* generate_memmap(void* multiboot_info, sysinfo_t* sysinfo) {
 
 }
 
-void sort_memmap(memory_map_t* mmap) {
-    // Sorts the memory map by physical address.
+uint64_t sort_memmap(memory_map_t* mmap) {
+    // Sorts the memory map by physical address. Returns the largest end address.
+
+    
 
     bool sorted = true;
     while(sorted) {
@@ -63,5 +65,23 @@ void sort_memmap(memory_map_t* mmap) {
                 sorted = true;
             }
         }
+        
     }
+
+    uint64_t lend = 0;
+    for(int i = 0; i < mmap->index; i++) {
+        uint64_t end = mmap->entries[i].size + mmap->entries[i].start;
+        
+        if(end >= lend) {
+            lend = end;
+        }
+    }
+
+
+    return lend;
+}
+
+void condense_memmap(memory_map_t* mmap) {
+    // Combines adjacent entries that are all available
+    // and returns the new index.
 }

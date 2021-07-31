@@ -49,15 +49,15 @@ grub: kernel.elf
 
 # Rule to run the kernel
 run: grub
-	${EMULATOR} -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -m 4G
+	${EMULATOR} -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -m 8G
 
 # Run kernel in bios mode
 bios: grub
-	${EMULATOR} -hda image.iso -serial file:serial.txt -m 4G
+	${EMULATOR} -hda image.iso -serial file:serial.txt -m 8G
 
 # Run the kernel in debug
 debug: grub
-	${EMULATOR} -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot -m 4G
+	${EMULATOR} -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot -m 8G
 
 
 # Here are rules for resolving object file translations
