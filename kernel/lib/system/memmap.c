@@ -120,4 +120,7 @@ void condense_memmap(memory_map_t* mmap) {
         }
     }
     mmap->index = size;
+
+
+    
 }

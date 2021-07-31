@@ -67,9 +67,14 @@ extern void kmain(void* multiboot_info) {
         serial_print("\n");
     }
     
-    
-    
+    for(int i = 0; i < 32; i++) {
+        void* frame = falloc(&system_info);
 
+        char c[33];
+        itoa((uint64_t)frame, c, 16);
+        serial_print(c);
+        serial_print("\n");
+    }
     
 
 }
