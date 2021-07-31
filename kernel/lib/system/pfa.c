@@ -140,25 +140,11 @@ void print_bitmap(sysinfo_t* system_info) {
 
 void* falloc(sysinfo_t* system_info) {
     // Returns the first found available page
-    for(uint64_t i = 0; i < system_info->page_allocator_info.num_pages / 64; i++) {
-        // If the entry is full we can just continue
-        if(((uint64_t*)(system_info->page_allocator_info.bitmap_addr))[i] == 0xFFFFFFFFFFFFFFFF) {
-            continue;
-        }
-        
-
-        // If not, then iterate over each bit
-        for(uint64_t j = 0; j < 64; j++) {
-            // Check if the bit is set
-            if(!((((uint64_t*)(system_info->page_allocator_info.bitmap_addr))[i] >> j) & 0x1)) {
-                // Set the bit
-                (((uint64_t*)(system_info->page_allocator_info.bitmap_addr))[i]) |= (0x1 << j);
-
-                // Return the address
-                return (void*)((i * 64 + j) * 0x1000);
-            }
-        }
-        
+    for(uint64_t i = 0; i < system_info->page_allocator_info.num_pages; i++) {
+        if(check_page(system_info, i)) {
+            set_page(system_info, i);
+            return (void*) (i << 12);
+        }   
     }
 }
 
@@ -210,5 +196,5 @@ bool check_page(sysinfo_t* system_info, uint64_t page) {
     uint64_t* bitmap = (uint64_t*)system_info->page_allocator_info.bitmap_addr;
 
     // Check the bit
-    return (bitmap[page / 64] >> (page % 64));
+    return !(bitmap[page / 64] >> (page % 64));
 }
