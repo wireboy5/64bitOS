@@ -37,11 +37,11 @@ memory_map_t* generate_memmap(void* multiboot_info, sysinfo_t* sysinfo) {
     // If none of the above are set, then this is an available area.
 
     // First allocate a block for the kernel
-    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, 5);
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)&_kernel_start_phys, (uint64_t)&_kernel_end_phys - (uint64_t)&_kernel_start_phys, MEMMAP_ENTRY_KERNEL);
     memory_map.index++;
 
     // Now allocate a block for the multiboot info
-    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint64_t)(multiboot_info), 3); 
+    memory_map.entries[memory_map.index] = create_mmap_entry((uint64_t)multiboot_info, (uint64_t)(multiboot_info), MEMMAP_ENTRY_MULTIBOOT_INFO); 
     memory_map.index++;
 
     // Now we return the address of the memory map for the GRUB parser to insert into.
@@ -83,5 +83,41 @@ uint64_t sort_memmap(memory_map_t* mmap) {
 
 void condense_memmap(memory_map_t* mmap) {
     // Combines adjacent entries that are all available
-    // and returns the new index.
+    
+    bool condense = true;
+    while(condense) {
+        condense = false;
+        for(int i = 0; i < mmap->index - 1; i++) {
+            if(mmap->entries[i].flags == 0 && mmap->entries[i+1].flags == 0 && mmap->entries[i].size + mmap->entries[i].start == mmap->entries[i+1].start) {
+                mmap->entries[i].size += mmap->entries[i+1].size;
+                mmap->entries[i+1].size = 0;
+                condense = true;
+            }
+        }
+    }
+
+    // Now that we have condensed the memory map, we need to sort out all empty entries.
+
+    bool sort = true;
+    while(sort) {
+        sort = false;
+        for(int i = 0; i < mmap->index - 1; i++) {
+            if(mmap->entries[i].size == 0) {
+                // Swap this and next
+                memmap_entry_t temp = mmap->entries[i];
+                mmap->entries[i] = mmap->entries[i+1];
+                mmap->entries[i+1] = temp;
+            }
+        }
+    }
+
+    // Now all of the empty entries should be at the end of the list.
+    // Lets calculate and set the new index
+    uint64_t size = 0;
+    for(uint64_t i = 0; i < mmap->index; i++) {
+        if(mmap->entries[i].size != 0) {
+            size ++;
+        }
+    }
+    mmap->index = size;
 }
