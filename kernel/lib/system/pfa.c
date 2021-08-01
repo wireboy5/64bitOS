@@ -138,13 +138,18 @@ void print_bitmap(sysinfo_t* system_info) {
     }
 
     // Print last entry
+    serial_print("PF BM Entry: ");
     char c[33];
-    serial_print(current_available ? "Avail: " : "Full: ");
     itoa(current_start, c, 16);
     serial_print(c);
     serial_print(" - ");
     itoa(current_start + (current_size << 12), c, 16);
     serial_print(c);
+    serial_print(" ( Size: ");
+    itoa(current_size, c, 16);
+    serial_print(c);
+    serial_print(" )");
+    serial_print(current_available ? " - Available " : " - Occupied");
     serial_print("\n");
 }
 
