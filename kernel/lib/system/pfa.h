@@ -10,13 +10,13 @@
 void init_pfa(sysinfo_t* sysinfo);
 
 // Frame alloc
-void* falloc(sysinfo_t* system_info);
+void* falloc(sysinfo_t system_info);
 
 // Frame free
-void ffree(void* frame);
+void ffree(sysinfo_t system_info, void* addr);
 
 // Frame Block alloc
 void* fbvalloc(size_t size);
 
 
-void print_bitmap(sysinfo_t* sysinfo);
+void print_bitmap(sysinfo_t sysinfo);
