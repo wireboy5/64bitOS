@@ -1,8 +1,8 @@
 #include "pfa.h"
 
-void set_page(sysinfo_t* system_info, uint64_t page);
-void clear_page(sysinfo_t* system_info, uint64_t page);
-bool check_page(sysinfo_t* system_info, uint64_t page);
+void set_page(sysinfo_t system_info, uint64_t page);
+void clear_page(sysinfo_t system_info, uint64_t page);
+bool check_page(sysinfo_t system_info, uint64_t page);
 
 
 
@@ -51,7 +51,6 @@ void init_pfa(sysinfo_t* system_info) {
     
 
     // Make sure all available entries end and start on a page boundary
-    uint64_t last_end = 0;
     for(uint64_t i = 0; i < system_info->memmap->index; i++) {
 
         
@@ -67,7 +66,7 @@ void init_pfa(sysinfo_t* system_info) {
                 // If rounding up the start would execeed the end
                 if(system_info->memmap->entries[i].start + offset >= system_info->memmap->entries[i].start + system_info->memmap->entries[i].size) { 
                     // Mark the page as not available
-                    set_page(system_info, system_info->memmap->entries[i].start & ~0xFFF);
+                    set_page(*system_info, system_info->memmap->entries[i].start & ~0xFFF);
                 } else {
                     // If not, round up
                     system_info->memmap->entries[i].start += offset;
@@ -83,7 +82,7 @@ void init_pfa(sysinfo_t* system_info) {
                 // If rounding down the end would exceed the start
                 if(offset >= system_info->memmap->entries[i].size) {
                     // Mark the page as not available
-                    set_page(system_info, system_info->memmap->entries[i].start & ~0xFFF);
+                    set_page(*system_info, system_info->memmap->entries[i].start & ~0xFFF);
                 } else {
                     // If not, round down
                     system_info->memmap->entries[i].size -= offset;
@@ -94,7 +93,7 @@ void init_pfa(sysinfo_t* system_info) {
             // Iterate over each page in the range
             for(uint64_t j = system_info->memmap->entries[i].start & ~0xFFF; j < system_info->memmap->entries[i].start + system_info->memmap->entries[i].size; j += 0x1000) {
                 // Mark the page as not available
-                set_page(system_info, j >> 12);
+                set_page(*system_info, j >> 12);
             }
         }
 
@@ -105,13 +104,13 @@ void init_pfa(sysinfo_t* system_info) {
 
 
 
-void print_bitmap(sysinfo_t* system_info) {
+void print_bitmap(sysinfo_t system_info) {
     // Print the bitmap
     serial_print("Page Frame Allocation Bitmap:\n");
     uint64_t current_start = 0;
     uint64_t current_size = 0;
     bool current_available = true;
-    for(uint64_t i = 0; i < system_info->page_allocator_info.num_pages; i++) {
+    for(uint64_t i = 0; i < system_info.page_allocator_info.num_pages; i++) {
         bool av = check_page(system_info, i);
 
         if(av == current_available) {
@@ -158,18 +157,23 @@ void print_bitmap(sysinfo_t* system_info) {
 
 
 
-void* falloc(sysinfo_t* system_info) {
+void* falloc(sysinfo_t system_info) {
     // Returns the first found available page
-    for(uint64_t i = 0; i < system_info->page_allocator_info.num_pages; i++) {
+    for(uint64_t i = 0; i < system_info.page_allocator_info.num_pages; i++) {
         
         if(check_page(system_info, i)) {
             set_page(system_info, i);
             return (void*) (i << 12);
         }   
     }
+    return NULL;
 }
 
-
+void ffree(sysinfo_t system_info, void* addr) {
+    // Frees the page
+    uint64_t page = (uint64_t) addr >> 12;
+    clear_page(system_info, page);
+}
 
 
 
@@ -178,43 +182,43 @@ void* falloc(sysinfo_t* system_info) {
 
 
 // Sets the bit of a page
-void set_page(sysinfo_t* system_info, uint64_t page) {
+void set_page(sysinfo_t system_info, uint64_t page) {
     // Verify that the page is not out of bounds
-    if(page > system_info->page_allocator_info.num_pages) {
+    if(page > system_info.page_allocator_info.num_pages) {
         return;
     }
 
     // Get a reference to the bitmap
-    uint64_t* bitmap = (uint64_t*)system_info->page_allocator_info.bitmap_addr;
+    uint64_t* bitmap = (uint64_t*)system_info.page_allocator_info.bitmap_addr;
 
     // Set the bit
     bitmap[page / 64] |= (1ULL << (page % 64));
 }
 
 // Clears the bit of a page
-void clear_page(sysinfo_t* system_info, uint64_t page) {
+void clear_page(sysinfo_t system_info, uint64_t page) {
     // Verify that the page is not out of bounds
-    if(page > system_info->page_allocator_info.num_pages) {
+    if(page > system_info.page_allocator_info.num_pages) {
         return;
     }
 
     // Get a reference to the bitmap
-    uint64_t* bitmap = (uint64_t*)system_info->page_allocator_info.bitmap_addr;
+    uint64_t* bitmap = (uint64_t*)system_info.page_allocator_info.bitmap_addr;
 
     // Clear the bit
     bitmap[page / 64] &= ~(1ULL << (page % 64));
 }
 
 // Checks the bit of a page
-bool check_page(sysinfo_t* system_info, uint64_t page) {
+bool check_page(sysinfo_t system_info, uint64_t page) {
 
     // Verify that the page is not out of bounds
-    if(page > system_info->page_allocator_info.num_pages) {
+    if(page > system_info.page_allocator_info.num_pages) {
         return false;
     }
 
     // Get a reference to the bitmap
-    uint64_t* bitmap = (uint64_t*)system_info->page_allocator_info.bitmap_addr;
+    uint64_t* bitmap = (uint64_t*)system_info.page_allocator_info.bitmap_addr;
 
     // Check the bit
     return !((bitmap[page / 64] >> (page % 64)) & 1ULL);
