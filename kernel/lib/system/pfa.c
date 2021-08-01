@@ -107,7 +107,7 @@ void init_pfa(sysinfo_t* system_info) {
 
 void print_bitmap(sysinfo_t* system_info) {
     // Print the bitmap
-    serial_print("Bitmap:\n");
+    serial_print("Page Frame Allocation Bitmap:\n");
     uint64_t current_start = 0;
     uint64_t current_size = 0;
     bool current_available = true;
@@ -117,13 +117,18 @@ void print_bitmap(sysinfo_t* system_info) {
         if(av == current_available) {
             current_size++;
         } else {
+            serial_print("PF BM Entry: ");
             char c[33];
-            serial_print(av ? "Avail: ": "Full: ");
             itoa(current_start, c, 16);
             serial_print(c);
             serial_print(" - ");
             itoa(current_start + (current_size << 12), c, 16);
             serial_print(c);
+            serial_print(" ( Size: ");
+            itoa(current_size, c, 16);
+            serial_print(c);
+            serial_print(" )");
+            serial_print(current_available ? " - Available " : " - Occupied");
             serial_print("\n");
 
             current_start = i << 12;
@@ -131,6 +136,16 @@ void print_bitmap(sysinfo_t* system_info) {
             current_available = av;
         }
     }
+
+    // Print last entry
+    char c[33];
+    serial_print(current_available ? "Avail: " : "Full: ");
+    itoa(current_start, c, 16);
+    serial_print(c);
+    serial_print(" - ");
+    itoa(current_start + (current_size << 12), c, 16);
+    serial_print(c);
+    serial_print("\n");
 }
 
 
@@ -141,6 +156,7 @@ void print_bitmap(sysinfo_t* system_info) {
 void* falloc(sysinfo_t* system_info) {
     // Returns the first found available page
     for(uint64_t i = 0; i < system_info->page_allocator_info.num_pages; i++) {
+        
         if(check_page(system_info, i)) {
             set_page(system_info, i);
             return (void*) (i << 12);
@@ -196,5 +212,5 @@ bool check_page(sysinfo_t* system_info, uint64_t page) {
     uint64_t* bitmap = (uint64_t*)system_info->page_allocator_info.bitmap_addr;
 
     // Check the bit
-    return !(bitmap[page / 64] >> (page % 64));
+    return !((bitmap[page / 64] >> (page % 64)) & 1ULL);
 }
