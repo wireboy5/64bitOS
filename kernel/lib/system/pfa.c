@@ -109,7 +109,7 @@ void print_bitmap(sysinfo_t system_info) {
     serial_print("Page Frame Allocation Bitmap:\n");
     uint64_t current_start = 0;
     uint64_t current_size = 0;
-    bool current_available = true;
+    bool current_available = check_page(system_info, 0);
     for(uint64_t i = 0; i < system_info.page_allocator_info.num_pages; i++) {
         bool av = check_page(system_info, i);
 
@@ -124,7 +124,7 @@ void print_bitmap(sysinfo_t system_info) {
             itoa(current_start + (current_size << 12), c, 16);
             serial_print(c);
             serial_print(" ( Size: ");
-            itoa(current_size, c, 16);
+            itoa(current_size << 12, c, 16);
             serial_print(c);
             serial_print(" )");
             serial_print(current_available ? " - Available " : " - Occupied");
@@ -177,6 +177,54 @@ void ffree(sysinfo_t system_info, void* addr) {
 
 
 
+void* fballoc(sysinfo_t system_info, size_t size) {
+    // Allocates size pages of memory in a contigous block
+
+    // Find the smallest fitting block
+    uint64_t current_index = 0;
+    uint64_t current_size = 0;
+    uint64_t largest_index = 0;
+    uint64_t largest_size = 0;
+    bool current_available = check_page(system_info, 0);
+    for(uint64_t i = 0; i < system_info.page_allocator_info.num_pages; i++) {
+        bool av = check_page(system_info, i);
+
+        if(av == current_available) {
+            current_size++;
+        } else {
+            if(current_available) {
+                if(current_size == size) {
+                    largest_size = current_size;
+                    largest_index = current_index;
+                    break;
+                } else if (current_size > size && current_size < largest_size) {
+                    largest_size = current_size;
+                    largest_index = current_index;
+                } else if (largest_size == 0 && current_size > size) {
+                    largest_size = current_size;
+                    largest_index = current_index;
+                    
+                }
+                
+            }
+
+            current_index = i;
+            current_size = 1;
+            current_available = av;
+        }
+
+        
+    }
+
+    // Mark all needed pages as occupied
+    for(uint64_t i = 0; i < size; i++) {
+        set_page(system_info, i + largest_index);
+    }
+
+
+    // Return the first page
+    return (void*) (largest_index << 12);
+}
 
 
 
