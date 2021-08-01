@@ -69,6 +69,5 @@ extern void kmain(void* multiboot_info) {
 
     // Print the bitmap for the PFA
     print_bitmap(system_info);
-    
 
 }

@@ -16,7 +16,7 @@ void* falloc(sysinfo_t system_info);
 void ffree(sysinfo_t system_info, void* addr);
 
 // Frame Block alloc
-void* fbvalloc(size_t size);
+void* fballoc(sysinfo_t system_info, size_t size);
 
 
 void print_bitmap(sysinfo_t sysinfo);
