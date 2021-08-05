@@ -5,6 +5,7 @@
 #include <system/sysinfo.h>
 #include <system/macros.h>
 #include <system/pfa.h>
+#include <system/paging.h>
 #include <screen/graphics.h>
 #include <string.h>
 
