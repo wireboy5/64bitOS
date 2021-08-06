@@ -1,5 +1,7 @@
 #pragma once
-
+#include <stdint.h>
+#include <string.h>
+#include <io/serial.h>
 #define ISR_PROTO(number) void isr_ ## number ()
 
 // IDT entry
@@ -23,15 +25,20 @@ typedef struct idt_pointer idt_pointer_t;
 
 // Registers that are passed to the ISRs
 struct isr_regs {
-    uint64_t rdi, rsi, rbp, rsp, rbx, rdx, rcx, rax;
-    uint64_t r8, r9, r10, r11, r12, r13, r14, r15;
-    uint64_t ds;
+    uint64_t ds; // Data Segment Descriptor
+    uint64_t rdi, rsi, rbp, old_rsp, rbx, rdx, rcx, rax; // General Purpose Registers
+    uint64_t r8, r9, r10, r11, r12, r13, r14, r15; // General Purpose Registers
+    uint64_t int_no, err_code; // Interrupt Number and Error Code
+    uint64_t rip, cs, eflags, rsp, ss;
 };
 typedef struct isr_regs isr_regs_t;
 
 
 void init_idt();
 void isr_handler(isr_regs_t *regs);
+
+extern void register_interrupt_handlers(void* idt);
+extern void load_idt(uint64_t idt_ptr);
 
 // Isr prototypes 0 - 255
 ISR_PROTO(0);

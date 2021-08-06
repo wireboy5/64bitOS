@@ -70,7 +70,10 @@ extern void kmain(void* multiboot_info) {
     // Print the bitmap for the PFA
     print_bitmap(system_info);
 
+    // Initialize IDT
+    init_idt();
 
+    asm("int $0x80");
     // Initialize paging system
-    init_paging(&system_info);
+    //init_paging(&system_info);
 }

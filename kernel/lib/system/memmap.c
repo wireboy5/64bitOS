@@ -57,7 +57,7 @@ uint64_t sort_memmap(memory_map_t* mmap) {
     bool sorted = true;
     while(sorted) {
         sorted = false;
-        for(int i = 0; i < mmap->index - 1; i++) {
+        for(uint32_t i = 0; i < mmap->index - 1; i++) {
             if(mmap->entries[i].start > mmap->entries[i+1].start) {
                 memmap_entry_t temp = mmap->entries[i];
                 mmap->entries[i] = mmap->entries[i+1];
@@ -69,7 +69,7 @@ uint64_t sort_memmap(memory_map_t* mmap) {
     }
 
     uint64_t lend = 0;
-    for(int i = 0; i < mmap->index; i++) {
+    for(uint32_t i = 0; i < mmap->index; i++) {
         uint64_t end = mmap->entries[i].size + mmap->entries[i].start;
         
         if(end >= lend) {
@@ -87,7 +87,7 @@ void condense_memmap(memory_map_t* mmap) {
     bool condense = true;
     while(condense) {
         condense = false;
-        for(int i = 0; i < mmap->index - 1; i++) {
+        for(uint32_t i = 0; i < mmap->index - 1; i++) {
             if(mmap->entries[i].flags == 0 && mmap->entries[i+1].flags == 0 && mmap->entries[i].size + mmap->entries[i].start == mmap->entries[i+1].start) {
                 mmap->entries[i].size += mmap->entries[i+1].size;
                 mmap->entries[i+1].size = 0;
@@ -101,7 +101,7 @@ void condense_memmap(memory_map_t* mmap) {
     bool sort = true;
     while(sort) {
         sort = false;
-        for(int i = 0; i < mmap->index - 1; i++) {
+        for(uint32_t i = 0; i < mmap->index - 1; i++) {
             if(mmap->entries[i].size == 0) {
                 // Swap this and next
                 memmap_entry_t temp = mmap->entries[i];
