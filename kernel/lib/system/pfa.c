@@ -4,11 +4,11 @@ void set_page(sysinfo_t system_info, uint64_t page);
 void clear_page(sysinfo_t system_info, uint64_t page);
 bool check_page(sysinfo_t system_info, uint64_t page);
 
-
+/*
 
 // Initialize the page frame allocator
 void init_pfa(sysinfo_t* system_info) {
-    /*
+    
     // Find the first available memory region that will fit the bitmap
     uint64_t smallest_index;
     uint64_t smallest_size;
@@ -100,7 +100,7 @@ void init_pfa(sysinfo_t* system_info) {
 
         
     }
-    //*/
+    
    
 }
 
@@ -273,3 +273,4 @@ bool check_page(sysinfo_t system_info, uint64_t page) {
     // Check the bit
     return !((bitmap[page / 64] >> (page % 64)) & 1ULL);
 }
+//*/
