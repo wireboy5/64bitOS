@@ -1,7 +1,7 @@
 #pragma once
 #include <screen/screen.h>
 #include <system/macros.h>
-#include <io/serial.h>
+#include <libk/log.h>
 #include <multiboot2.h>
 #include <string.h>
 #include <stdint.h>

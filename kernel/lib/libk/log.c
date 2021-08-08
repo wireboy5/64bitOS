@@ -40,15 +40,9 @@ void log_puts(char* c) {
 */
 void vlog(uint8_t level, char* format, va_list args) {
     // If we should print at all
-    bool print = true;
+    bool print = level >= LOG_LEVEL;
 
 
-
-    // If the log level is lower than the specified level
-    // do not print
-    if (level < LOG_LEVEL) {
-        print = false;
-    }
 
     // if we should print, also print the log level
     if (print) {
