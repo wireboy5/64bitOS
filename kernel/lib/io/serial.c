@@ -21,6 +21,9 @@ int init_serial() {
     // If serial is not faulty set it in normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
     outb(PORT + 4, 0x0F);
+
+    // Write newline to serial
+    write_serial("\n");
     return 0;
 }
 
