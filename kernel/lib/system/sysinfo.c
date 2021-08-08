@@ -28,8 +28,8 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
     // Grab tags header
     info->tags_header = *(multiboot_tags_header_t*)multiboot_info;
 
-    // Tag offset address
-    serial_print("Searching Multiboot Information Structure...\n");
+    // Log that we are searching the information structure
+    log(0, "Searching Multiboot Information Structure...\n");
 
     
 
@@ -40,179 +40,84 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
     for (tag = (struct multiboot_tag*)((size_t)multiboot_info + 8);
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag*)((uint8_t*)tag + ((tag->size + 7) & ~7))) {
-
-        // Print tag info
-        char tsize[33];
-        char ttype[33];
-        itoa(tag->size, tsize, 10);
-        itoa(tag->type, ttype, 10);
-        serial_print("Found tag of size: ");
-        serial_print(tsize);
-        serial_print(" type: ");
-        serial_print(ttype);
+        
+        // Tag type
+        char* tag_type = "Unknown";
         
         // Switch on tag type
         switch (tag->type) {
-            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: { // Framebuffer
-                // Create a framebuffer pointer to the tag
-                struct multiboot_tag_framebuffer_common* fb_common = (struct multiboot_tag_framebuffer_common*)tag;
-
-                // Load proper framebuffer tag
-                if(fb_common->framebuffer_type != 2) {
-                    // If RGB or indexed, then use it as a framebuffer
-                    serial_print(" - framebuffer");
-                    struct multiboot_tag_framebuffer* fb = (struct multiboot_tag_framebuffer*)tag;
-                    parse_framebuffer(info, fb);
-                } else {
-                    // TODO: Implement EGA
-                    serial_print(" - EGA Text");
-                }
-
-
+            case MULTIBOOT_TAG_TYPE_CMDLINE:
+                tag_type = "Command Line";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_MMAP: { // Memory Map
-                // Cast to memory map tag
-                struct multiboot_tag_mmap* mmap = (struct multiboot_tag_mmap*)tag;
-
-                // Print that this is a MMAP
-                serial_print(" - mmap");
-
-
-                // Load mmap address into system info
-                info->grub_memmap = mmap;
-
-                
-
+            case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME:
+                tag_type = "Boot Loader Name";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_MODULE: { // Module
-                // Cast to module tag
-                struct multiboot_tag_module* module = (struct multiboot_tag_module*)tag;
-
-                // Print that this is a module
-                serial_print(" - module");
-                serial_print(" - ");
-                serial_print(module->cmdline);
-
+            case MULTIBOOT_TAG_TYPE_MODULE:
+                tag_type = "Module";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO: { // Basic memory info
-                // Cast to basic memory info tag
-                struct multiboot_tag_basic_meminfo* meminfo = (struct multiboot_tag_basic_meminfo*)tag;
-                serial_print(" - basic memory info");
-                
-                // Save to sysinfo
-                info->mem_lower = meminfo->mem_lower;
-                info->mem_upper = meminfo->mem_upper;
-
+            case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
+                tag_type = "Basic Memory Information";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_CMDLINE: { // Command line
-                // Cast to command line tag (string)
-                struct multiboot_tag_string* cmdline = (struct multiboot_tag_cmdline*)tag;
-
-                // Print that this is a command line
-                serial_print(" - cmdline");
-
-                // Save to sysinfo
-                info->cmdline = cmdline->string;
-
+            case MULTIBOOT_TAG_TYPE_BOOTDEV:
+                tag_type = "Boot Device";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME: { // Boot loader name
-
-                // Cast to boot loader name tag (string)
-                struct multiboot_tag_string* name = (struct multiboot_tag_boot_loader_name*)tag;
-
-                // Print that this is a boot loader name
-                serial_print(" - boot loader name");
-
-                // Save to sysinfo
-                info->boot_loader_name = name->string;
-
-                // Print the boot loader name
-                serial_print(" - ");
-                serial_print(info->boot_loader_name);
-
+            case MULTIBOOT_TAG_TYPE_MMAP:
+                tag_type = "Memory Map";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_EFI64 : { // EFI64
-                // Cast to EFI64 tag
-                struct multiboot_tag_efi64* efi64 = (struct multiboot_tag_efi64*)tag;
-
-                // Print that this is an EFI64 tag
-                serial_print(" - EFI64");
-
-                // Save to sysinfo
-                info->efi64 = efi64->pointer;
-
+            case MULTIBOOT_TAG_TYPE_VBE:
+                tag_type = "VBE";
                 break;
-            }
-
-            case MULTIBOOT_TAG_TYPE_ACPI_OLD : { // ACPI old
-                // Cast to ACPI old tag
-                struct multiboot_tag_old_acpi* acpi_old = (struct multiboot_tag_acpi_old*)tag;
-
-                // Print that this is an ACPI old tag
-                serial_print(" - ACPI old");
-
-                // Save to sysinfo
-                info->RSDPv1 = acpi_old;
+            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
+                tag_type = "Framebuffer";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_ACPI_NEW : { // ACPI new
-                // Cast to ACPI new tag
-                struct multiboot_tag_new_acpi* acpi_new = (struct multiboot_tag_acpi_new*)tag;
-
-                // Print that this is an ACPI new tag
-                serial_print(" - ACPI new");
-
-                // Save to sysinfo
-                info->RSDPv2 = acpi_new;
+            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
+                tag_type = "ELF Sections";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_EFI_MMAP : { // EFI memory map
-                // Cast to EFI memory map tag
-                struct multiboot_tag_efi_mmap* mmap = (struct multiboot_tag_efi_mmap*)tag;
-
-                // Print that this is an EFI memory map tag
-                serial_print(" - EFI memory map");
-
-                // Save to sysinfo
-                info->efi_memmap = mmap;
-
-                // TODO: Augment memory map with EFI memory map
-
+            case MULTIBOOT_TAG_TYPE_APM:
+                tag_type = "APM";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR: { // Image base
-                // Cast to image base tag
-                struct multiboot_tag_load_base_addr* image_base = (struct multiboot_tag_image_base*)tag;
-                
-                // Print that this is an image base tag
-                serial_print(" - image base");
-
+            case MULTIBOOT_TAG_TYPE_EFI32:
+                tag_type = "EFI32";
                 break;
-            }
-            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS: { // ELF sections 
-                // Cast to ELF sections tag
-                struct multiboot_tag_elf_sections* elf_sections = (struct multiboot_tag_elf_sections*)tag;
-
-                // Print that this is an ELF sections tag
-                serial_print(" - ELF sections");
-
+            case MULTIBOOT_TAG_TYPE_EFI64:
+                tag_type = "EFI64";
                 break;
-            }
-            default:
+            case MULTIBOOT_TAG_TYPE_SMBIOS:
+                tag_type = "SMBIOS";
                 break;
-        }
+            case MULTIBOOT_TAG_TYPE_ACPI_OLD:
+                tag_type = "ACPI RDSPv1";
+                break;
+            case MULTIBOOT_TAG_TYPE_ACPI_NEW:
+                tag_type = "ACPI RSDPv2";
+                break;
+            case MULTIBOOT_TAG_TYPE_NETWORK:
+                tag_type = "Network";
+                break;
+            case MULTIBOOT_TAG_TYPE_EFI_MMAP:
+                tag_type = "EFI Memory Map";
+                break;
+            case MULTIBOOT_TAG_TYPE_EFI_BS:
+                tag_type = "EFI Boot Services";
+                break;
+            case MULTIBOOT_TAG_TYPE_EFI32_IH:
+                tag_type = "EFI32 IH";
+                break;
+            case MULTIBOOT_TAG_TYPE_EFI64_IH:
+                tag_type = "EFI64 IH";
+                break;
+            case MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR:
+                tag_type = "Load Base Address";
+                break;
+        } 
 
-        serial_print("\n");
+        // Log the tag
+        log(0, "Multiboot Tag Found. Size: %x Type: %d \t - %s\n", tag->size, tag->type, tag_type);
     }
 }
 
 sysinfo_t get_sysinfo(void* multiboot_info) {
+    log(1, "Retrieving system information.\n");
     sysinfo_t sysinfo;
 
     // Parse multiboot info
