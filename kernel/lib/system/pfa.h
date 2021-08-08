@@ -1,6 +1,5 @@
 #pragma once
 #include <system/sysinfo.h>
-#include <system/memmap.h>
 #include <system/macros.h>
 #include <string.h>
 #include <stdint.h>

@@ -1,5 +1,5 @@
 #include "sysinfo.h"
-#include <system/memmap.h>
+
 
 void parse_framebuffer(sysinfo_t* info, struct multiboot_tag_framebuffer* fb) {
     info->fb.address = fb->common.framebuffer_addr;
@@ -68,12 +68,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                     serial_print(" - EGA Text");
                 }
 
-                // Load the framebuffer into the memory map
-                uint64_t fb_size = fb_common->framebuffer_pitch * fb_common->framebuffer_height;
-                
-                info->memmap->entries[info->memmap->index] = create_mmap_entry(fb_common->framebuffer_addr,
-                    fb_size, 8);
-                info->memmap->index++;
+
                 break;
             }
             case MULTIBOOT_TAG_TYPE_MMAP: { // Memory Map
@@ -87,100 +82,7 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 // Load mmap address into system info
                 info->grub_memmap = mmap;
 
-                uint64_t index = info->memmap->index;
-
-                for (struct multiboot_mmap_entry* entry = (struct multiboot_mmap_entry*) ((uintptr_t)info->grub_memmap + sizeof(struct multiboot_tag_mmap));
-                    (uintptr_t)entry - (uintptr_t)info->grub_memmap < info->grub_memmap->size; entry = (struct multiboot_mmap_entry*)((uintptr_t)entry + info->grub_memmap->entry_size)) {
-                    char c[33];
-
-                    /*
-                    serial_print("MMAP Entry: ");
-                    itoa(entry->addr, c, 16);
-                    serial_print(c);
-                    serial_print(" - ");
-                    uint64_t end_addr = entry->addr + entry->len;
-
-                    itoa(end_addr, c, 16);
-                    serial_print(c);
-                    //*/
-
-                    uint8_t flags;
-
-                    // Switch on type
-                    switch (entry->type) {
-                        case MULTIBOOT_MEMORY_AVAILABLE:
-                            //serial_print(" - Available\n");
-                            flags = 0;
-                            break;
-                        case MULTIBOOT_MEMORY_RESERVED:
-                            //serial_print(" - Reserved\n");
-                            flags = 1;
-                            break;
-                        case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:
-                            //serial_print(" - ACPI reclaimable\n");
-                            flags = 7;
-                            break;
-                        case MULTIBOOT_MEMORY_NVS:
-                            //serial_print(" - ACPI NVS\n");
-                            flags = 6;
-                            break;
-                        case MULTIBOOT_MEMORY_BADRAM:
-                            //serial_print(" - Bad ram\n");
-                            flags = 5;
-                            break;
-                        default:
-                            //serial_print(" - Unknown\n");
-                            flags = 0; // Default to available
-                    }
-
-                    // Get the end of the new entry
-                    uint64_t new_end = entry->addr + entry->len;
-                    bool overlaps = false;
-                    if(flags == 0){
-                        // If available Check if it overlaps with an existing entry
-                        for(uint64_t i = 0; i < index; i++) {
-                            // Get the end of the current entry
-                            uint64_t end = info->memmap->entries[i].start + info->memmap->entries[i].size;
-                            memmap_entry_t mentry = info->memmap->entries[i];
-                            if(mentry.start > entry->addr){
-                                if(end < new_end) {
-                                    // Overlapping
-                                    overlaps = true;
-
-                                    // Create entry for beginning of overlap
-                                    memmap_entry_t begin = create_mmap_entry(entry->addr, mentry.start - entry->addr, flags);
-
-                                    // Create entry for end of overlap
-                                    memmap_entry_t end_entry = create_mmap_entry(end, new_end - end, flags);
-
-                                    // Add each entry only if length is more than zero
-                                    if(begin.size > 0) {
-                                        info->memmap->entries[info->memmap->index] = begin;
-                                        info->memmap->index++;
-                                    }
-                                    if(end_entry.size > 0) {
-                                        info->memmap->entries[info->memmap->index] = end_entry;
-                                        info->memmap->index++;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (!overlaps) {
-                        // Add the entry
-                        info->memmap->entries[info->memmap->index] = create_mmap_entry(entry->addr,
-                            entry->len, flags);
-                        info->memmap->index++;
-                    }
-                    
-
-                    
-                    
-
-                    
-                }
+                
 
                 break;
             }
@@ -193,9 +95,6 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 serial_print(" - ");
                 serial_print(module->cmdline);
 
-                // Add module to memory map
-                info->memmap->entries[info->memmap->index] = create_mmap_entry(module->mod_start, module->mod_end - module->mod_start, 3);
-                info->memmap->index++;
                 break;
             }
             case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO: { // Basic memory info
@@ -316,18 +215,13 @@ void parse_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 sysinfo_t get_sysinfo(void* multiboot_info) {
     sysinfo_t sysinfo;
 
-    // Generate a new memmap
-    sysinfo.memmap = (void*)generate_memmap(multiboot_info, &sysinfo);
-
     // Parse multiboot info
     parse_multiboot_info(multiboot_info, &sysinfo);
 
-    // Re-sort the memory map
-    uint64_t page_to = sort_memmap(sysinfo.memmap);
 
-    // Now that the memory map is sorted, we need to combine parallel available segments
-    condense_memmap(sysinfo.memmap);
+    
 
+    /*
     // Generate info for page frame alocator
 
     // Calculate number of pages
@@ -347,7 +241,7 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
 
     // Save to sysinfo
     sysinfo.page_allocator_info = alloc_info;
-
+    //*/
     
    
 

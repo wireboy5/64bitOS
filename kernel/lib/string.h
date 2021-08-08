@@ -13,3 +13,5 @@ void strbackspace(char s[]);
 size_t strlen(char s[]);
 size_t strcmp(char s1[], char s2[]);
 char* itoa(uint64_t value, char* buffer, int base);
+
+uint64_t atoi(char* str, uint64_t digits);

@@ -124,3 +124,14 @@ size_t strcmp(char s1[], char s2[]) {
     }
     return s1[i] - s2[i];
 }
+
+uint64_t atoi(char* str, uint64_t digits) {
+    uint64_t result = 0;
+    char* end = str + digits;
+
+    
+    for(uint64_t i = 0; i < digits; i++) {
+        result = result * 10 + (str[i] - '0');
+    }
+    return result;
+}
