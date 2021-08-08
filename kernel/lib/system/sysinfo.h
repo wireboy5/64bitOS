@@ -100,6 +100,8 @@ struct sysinfo {
     // These will be initialized after the previous values are initialized
     // None of these should ever be NULL.
 
+    // The supported ACPI version.
+    uint8_t acpi_version; // 0 if ACPI not supported
 
 };
 typedef struct sysinfo sysinfo_t;

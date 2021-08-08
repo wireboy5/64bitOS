@@ -195,7 +195,7 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 }
 
 void populate_derived(sysinfo_t* sysinfo) {
-
+    
 }
 
 sysinfo_t get_sysinfo(void* multiboot_info) {
@@ -205,7 +205,7 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     // Parse multiboot info
     sysinfo_populate_multiboot_info(multiboot_info, &sysinfo);
 
-    // Populate the rest of the system info based off of what we have found.
+    // Populate more system info based on multiboot info (Not memory maps)
     populate_derived(&sysinfo);
     
     /*
