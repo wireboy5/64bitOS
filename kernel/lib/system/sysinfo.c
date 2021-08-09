@@ -1,5 +1,5 @@
 #include "sysinfo.h"
-
+#include <libk/memory/memmap.h>
 
 
 void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
@@ -69,7 +69,7 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 tag_type = "Memory Map";
 
                 // Set the address of the memory map
-                info->mboot_mmap_addr = tag;
+                info->mboot_mmap_addr = (uint64_t)tag;
                 
                 break;
             case MULTIBOOT_TAG_TYPE_VBE:
@@ -104,8 +104,6 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 }
                 
 
-                // Set framebuffer info
-                parse_framebuffer(info, (struct multiboot_tag_framebuffer*)tag);
                 
                 break;
             case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
@@ -138,14 +136,14 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 tag_type = "ACPI RSDPv1";
 
                 // Set pointer to this tag + size of basic tag header
-                info->RSDPv1 = (uint32_t)tag + 8;
+                info->RSDPv1 = (uint64_t)tag + 8;
 
                 break;
             case MULTIBOOT_TAG_TYPE_ACPI_NEW:
                 tag_type = "ACPI RSDPv2";
 
                 // Same as ACPI OLD
-                info->RSDPv2 = (uint32_t)tag + 8;
+                info->RSDPv2 = (uint64_t)tag + 8;
 
                 break;
             case MULTIBOOT_TAG_TYPE_NETWORK:
@@ -156,7 +154,7 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 tag_type = "EFI Memory Map";
 
                 // Set the address of the EFI memory map
-                info->efi_mmap = tag + 8;
+                info->efi_mmap = (uint64_t)tag + 8;
 
                 break;
             case MULTIBOOT_TAG_TYPE_EFI_BS:
@@ -198,7 +196,9 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
 
 
 void populate_derived(sysinfo_t* sysinfo) {
-    
+    /*
+        Do nothing for now.
+    */
 }
 
 sysinfo_t get_sysinfo(void* multiboot_info) {
@@ -211,6 +211,8 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     // Populate more system info based on multiboot info (Not memory maps)
     populate_derived(&sysinfo);
     
+    // Generate memory map
+    sysinfo.mmap = generate_memmap(sysinfo);
     /*
     // Generate info for page frame alocator
 

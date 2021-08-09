@@ -3,7 +3,7 @@
 #include <system/macros.h>
 #include <libk/log.h>
 #include <multiboot2.h>
-#include <string.h>
+#include <libk/string.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -100,8 +100,8 @@ struct sysinfo {
     // These will be initialized after the previous values are initialized
     // None of these should ever be NULL.
 
-    // The supported ACPI version.
-    uint8_t acpi_version; // 0 if ACPI not supported
+    // The kernel generated memory map
+    void* mmap;
 
 };
 typedef struct sysinfo sysinfo_t;

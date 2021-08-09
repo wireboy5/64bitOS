@@ -180,3 +180,51 @@ struct ACPI_MADT_X2APIC {
     uint32_t APIC_ID;
 } __attribute__ ((packed));
 typedef struct ACPI_MADT_X2APIC ACPI_MADT_X2APIC_t;
+
+
+/*******************************************************************************
+ * BGRT Strcuture
+ ******************************************************************************/
+
+struct ACPI_BGRT {
+    struct ACPI_SDT_HEADER header;
+    uint8_t status;
+    uint8_t image_type;
+    uint64_t image_addr;
+    uint32_t x_offset;
+    uint32_t y_offset;
+} __attribute__ ((packed));
+
+
+/*******************************************************************************
+ * Other Stuctures
+ ******************************************************************************/
+
+/*
+    BERT structure (Boot Error Record Table)
+*/
+struct ACPI_BERT {
+    struct ACPI_SDT_HEADER header;
+    uint32_t error_region_length;
+    uint64_t error_region;
+} __attribute__ ((packed));
+
+
+/*
+    CPEP Entry
+*/
+struct ACPI_CPEP_entry {
+    uint8_t type;
+    uint8_t length;
+    uint8_t processor_id;
+    uint8_t processor_eid;
+    uint32_t polling_interval;
+} __attribute__ ((packed));
+
+/*
+    CPEP Structure (Corrected Platform Error Polling Table)
+*/
+struct ACPI_CPEP {
+    struct ACPI_SDT_HEADER header;
+    uint64_t reserved;
+} __attribute__ ((packed));

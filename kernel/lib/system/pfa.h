@@ -1,7 +1,7 @@
 #pragma once
 #include <system/sysinfo.h>
 #include <system/macros.h>
-#include <string.h>
+#include <libk/string.h>
 #include <stdint.h>
 #include <stdbool.h>
 

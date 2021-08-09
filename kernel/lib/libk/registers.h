@@ -51,7 +51,7 @@ static inline uint32_t rdcr8(void) {
  * Model Specific Registers
  ************************************************/
 
-static inline void wrmsr(uint64_t index, uint64_t value) {
+static inline void wrmsr(uint64_t msr, uint64_t value) {
     uint32_t low = value & 0xFFFFFFFF;
 	uint32_t high = value >> 32;
 	asm volatile (
@@ -61,7 +61,7 @@ static inline void wrmsr(uint64_t index, uint64_t value) {
 	);
 }
 
-static inline uint64_t rdmsr(uint64_t index) {
+static inline uint64_t rdmsr(uint64_t msr) {
     uint32_t low, high;
     asm volatile (
         "rdmsr"

@@ -13,5 +13,7 @@ extern void kmain(void* multiboot_info) {
     // Load system info
     system_info = get_sysinfo(multiboot_info);
 
+    // Log that kernel is being loaded by bootloader
+    log(1, "Kernel loaded by \"%s\"\n", system_info.bootloader_name);
     
 }
