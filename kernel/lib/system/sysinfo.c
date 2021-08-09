@@ -194,6 +194,9 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
     }
 }
 
+
+
+
 void populate_derived(sysinfo_t* sysinfo) {
     
 }
