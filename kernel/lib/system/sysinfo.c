@@ -69,7 +69,7 @@ void sysinfo_populate_multiboot_info(void* multiboot_info, sysinfo_t* info) {
                 tag_type = "Memory Map";
 
                 // Set the address of the memory map
-                info->mboot_mmap_addr = (uint64_t)tag;
+                info->mboot_mmap = (struct multiboot_tag_mmap*)tag;
                 
                 break;
             case MULTIBOOT_TAG_TYPE_VBE:
@@ -205,9 +205,10 @@ sysinfo_t get_sysinfo(void* multiboot_info) {
     log(1, "Retrieving system information.\n");
     sysinfo_t sysinfo;
 
+
     // Parse multiboot info
     sysinfo_populate_multiboot_info(multiboot_info, &sysinfo);
-
+    
     // Populate more system info based on multiboot info (Not memory maps)
     populate_derived(&sysinfo);
     

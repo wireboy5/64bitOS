@@ -1,4 +1,5 @@
 #pragma once
+#include <libk/memory/memmap_struct.h>
 #include <screen/screen.h>
 #include <system/macros.h>
 #include <libk/log.h>
@@ -73,7 +74,7 @@ struct sysinfo {
     boot_device_info_t bootdev_info;
 
     // The address of the memory map provided by multiboot
-    uint64_t mboot_mmap_addr;
+    struct multiboot_tag_mmap* mboot_mmap;
 
     // Pointer to the framebuffer
     framebuffer_t fb;
@@ -101,7 +102,7 @@ struct sysinfo {
     // None of these should ever be NULL.
 
     // The kernel generated memory map
-    void* mmap;
+    memmap_t mmap;
 
 };
 typedef struct sysinfo sysinfo_t;
