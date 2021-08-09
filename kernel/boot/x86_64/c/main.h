@@ -6,7 +6,7 @@
 #include <system/macros.h>
 #include <system/pfa.h>
 #include <screen/graphics.h>
-#include <string.h>
+#include <libk/string.h>
 
 
 sysinfo_t system_info;

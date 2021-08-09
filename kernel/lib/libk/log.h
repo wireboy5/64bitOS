@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string.h>
+#include <libk/string.h>
 #include <io/serial.h>
 
 // Standard C headers that work while freestanding
