@@ -32,11 +32,15 @@ ASM = nasm
 # Emulator
 EMULATOR = qemu-system-x86_64
 
+# GDB
+GDB = x86_64-elf-gdb
 
 # Rule to build the kernel elf file
 kernel.elf: kernel/boot/global/asm/mboot.o ${OBJ_FILES}
-	${LD} ${LD_FLAGS} -o $@ -Tlink.ld $^
+	${LD} ${LD_FLAGS} -S -o $@ -Tlink.ld $^
 
+debug_kernel.elf: kernel/boot/global/asm/mboot.o ${OBJ_FILES}
+	${LD} ${LD_FLAGS} -o kernel.elf -Tlink.ld $^
 
 # Rule to build the grub iso
 grub: kernel.elf
@@ -46,6 +50,13 @@ grub: kernel.elf
 	# Create the iso
 	grub-mkrescue -o image.iso image/
 
+# Builds grub with debug elf file
+grub: debug_kernel.elf
+	# Move the kernel elf file to the boot folder
+	mv kernel.elf image/boot/kernel.elf
+
+	# Create the iso
+	grub-mkrescue -o image.iso image/
 
 # Rule to run the kernel
 run: grub
@@ -56,8 +67,9 @@ bios: grub
 	${EMULATOR} -hda image.iso -serial file:serial.txt -m 8G
 
 # Run the kernel in debug
-debug: grub
-	${EMULATOR} -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot -m 8G
+debug: debug_grub
+	${EMULATOR} -S -s -no-shutdown -bios /usr/share/ovmf/OVMF.fd -hda image.iso -serial file:serial.txt -d int -no-reboot -m 8G
+	${GDB} -x debug/defaultqemu.gdb
 
 
 # Here are rules for resolving object file translations
