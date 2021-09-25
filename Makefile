@@ -35,11 +35,15 @@ EMULATOR = qemu-system-x86_64
 # GDB
 GDB = x86_64-elf-gdb
 
+
+# Rule to build the entire project
+
+
 # Rule to build the kernel elf file
-kernel.elf: kernel/boot/global/asm/mboot.o ${OBJ_FILES}
+kernel.elf: kernel/boot/mboot.o ${OBJ_FILES}
 	${LD} ${LD_FLAGS} -S -o $@ -Tlink.ld $^
 
-debug_kernel.elf: kernel/boot/global/asm/mboot.o ${OBJ_FILES}
+debug_kernel.elf: kernel/boot/mboot.o ${OBJ_FILES}
 	${LD} ${LD_FLAGS} -o kernel.elf -Tlink.ld $^
 
 # Rule to build the grub iso
@@ -51,7 +55,7 @@ grub: kernel.elf
 	grub-mkrescue -o image.iso image/
 
 # Builds grub with debug elf file
-grub: debug_kernel.elf
+grub_debug: debug_kernel.elf
 	# Move the kernel elf file to the boot folder
 	mv kernel.elf image/boot/kernel.elf
 
