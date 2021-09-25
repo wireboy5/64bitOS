@@ -25,6 +25,8 @@ entry64:
     ; call kmain
 
     ; Print
+    mov al, 'A'
+    out COM1, al
 
     ; Halt
     hlt
