@@ -22,6 +22,9 @@ entry64:
     mov rdi, [multiboot_info]
 
     ; Finish kernel loading
-    call kmain
+    ; call kmain
 
-    jmp $
+    ; Print
+
+    ; Halt
+    hlt
