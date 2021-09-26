@@ -22,11 +22,7 @@ entry64:
     mov rdi, [multiboot_info]
 
     ; Finish kernel loading
-    ; call kmain
-
-    ; Print
-    mov al, 'A'
-    out COM1, al
+    call kmain
 
     ; Halt
     hlt
