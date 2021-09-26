@@ -1,3 +1,4 @@
+
 ; Defines various macros to make code cleander
 
 ; Include definitions
@@ -42,3 +43,5 @@
     pop rcx
     pop rax
 %endmacro
+
+

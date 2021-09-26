@@ -55,7 +55,7 @@ grub: kernel.elf
 	grub-mkrescue -o image.iso image/
 
 # Builds grub with debug elf file
-grub_debug: debug_kernel.elf
+debug_grub: debug_kernel.elf
 	# Move the kernel elf file to the boot folder
 	mv kernel.elf image/boot/kernel.elf
 
