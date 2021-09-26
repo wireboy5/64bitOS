@@ -10,5 +10,5 @@ extern void kmain() {
     initialize_idt();
     serial_print("IDT Initialized\n");
 
-    asm volatile ("int $0x3");
+    for(;;);
 }
